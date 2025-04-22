@@ -9,7 +9,7 @@ PITAGORAS_API_BASE_URL = "https://pitagoras-api-l6dmrzkz7a-uc.a.run.app/api/v1"
 AUTH_TOKEN = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhdXRob3JpemVkIjp0cnVlLCJjbGllbnRzV2l0aFBlcm1pc3Npb24iOlt7ImlkIjoiME16dmJXYVRyVzdnZWRCdmR3T0QifSx7ImlkIjoiMGZrd01PMFcweGpHSVRkQWxyVVQifSx7ImlkIjoiMld5b3paVThoampycThFNFVPT1gifSx7ImlkIjoiNE5QOGZZdVdSaHdrNTJwNEVDTWQifSx7ImlkIjoiNWhFc21wQmRvcnRCT3BMbjNhNFEifSx7ImlkIjoiNW9ZeDFWemNSU0hHb290QkV6Q3YifSx7ImlkIjoiNXVmamc1U09VNGZKbkxyT0pBcjcifSx7ImlkIjoiNlZMVDBJMzBDdU1pdmxyM0I3TEEifSx7ImlkIjoiNmYyN2FxQktmZlRLRkdLMVpHZXkifSx7ImlkIjoiNmZBZlVTeXRTd2dydXU3SHVXMEYifSx7ImlkIjoiNmZEMGE3UFJOUzgzc0d6NVVwOEcifSx7ImlkIjoiODJKWE4yQlJ1b0xoZ25LbHV0UUgifSx7ImlkIjoiQUZhVmJnM2ZsRVRlZjNjdWxudDQifSx7ImlkIjoiQUdqbEFMMXNVZ25hc0JNRjFEMjcifSx7ImlkIjoiQXVydktZclJvNE1JWkpaT3M1REIifSx7ImlkIjoiQjNMbTlMMGdMT05PN2dTMW50V3gifSx7ImlkIjoiQlM4Q05uUXhxTzlEb3JWN2dWMVoifSx7ImlkIjoiQ0l3UmlwSEZFYkxNSXVEYWhDRXIifSx7ImlkIjoiQ043Y1VBTW1haURuNmFIR2hib3gifSx7ImlkIjoiQ3I0T1ZOREJWdlVBc1JId2ZmWmkifSx7ImlkIjoiRDIwZ1F1dDl4SkdMSHNnSXh5NDIifSx7ImlkIjoiRGV5b1luakpBdjNCV1g5UENYZlkifSx7ImlkIjoiRHVvS3JJTGdSbWVya1VoR2c1eGoifSx7ImlkIjoiR3gzVjlVOU1OWGhFV0hidnlaZXMifSx7ImlkIjoiSFVYaGpDZGo5RUxoejlkUklhaVQifSx7ImlkIjoiSVRQRTBBSFFFbzMwcmg1VUd1d00ifSx7ImlkIjoiS3k2Z0hBTFFxdGs0RXpiZmxBRlkifSx7ImlkIjoiTEpuM3VWQ2V5WUVYOFdPMGZrbTAifSx7ImlkIjoiTTV6UG9Sc2VtS1Y0VzRUOWdieVkifSx7ImlkIjoiTU5BR2pvZUdXdDhnbHRYUzhPSHQifSx7ImlkIjoiTXRmVmlqZndSZkVOa3FZREZFR28ifSx7ImlkIjoiTkNhQmpQamFBNUR4bU1XaW5VMlgifSx7ImlkIjoiTzQ1Y0FYWEhINW1NaU5kWk1NWDMifSx7ImlkIjoiT3Z5U3VIamFPbnBaTENSZXhoRTEifSx7ImlkIjoiUFNCeTFjdGNsZ3dXNmE4THBMS0UifSx7ImlkIjoiUURhSm85U1poS055Mm1xOUJUa00ifSx7ImlkIjoiUnoySXRsV2FmNDhSUHg5V0lFeVcifSx7ImlkIjoiU3ZMVkdYMk1KMkw4ZFpUUEVFNFIifSx7ImlkIjoiVUNESkRyUEo3U0hUN3RsNGh4UmoifSx7ImlkIjoiVVRQeWRaeHhlZVFJMW85ejJUZHYifSx7ImlkIjoiVlpJSDlLeVk0ZVhKM0ticXhsSXUifSx7ImlkIjoiVnJHSWpxdUJVU0ZiRE5JaE5namQifSx7ImlkIjoiV093VkNYQkJTQTZqNkswa2J2SzAifSx7ImlkIjoiV2JmWm5YY3c2MHA2UUhQVG44TmgifSx7ImlkIjoiWGdnZE5pT1BNZ1duazBTdUhkVzQifSx7ImlkIjoiWWVBb3RUa0ZUdEdEczNkaEdsRWgifSx7ImlkIjoiWXdjSGxSWVhQVTJFTWNRUXJ0UngifSx7ImlkIjoiYUZHUjNsN2JNTXJNb0t4MW1EbzMifSx7ImlkIjoiYkZJMVJ5OWtMQjBKeUgwUTY2d2kifSx7ImlkIjoiZHFrbVY4NFVicDJIdXJjWkt4MW0ifSx7ImlkIjoiZXE4SjFDM1BXZEI4cDF0RDR6SUcifSx7ImlkIjoiZjB5SE8wcUZGMldKb0lwS3hualcifSx7ImlkIjoiZmM2MXM3UmlGS0lKM1l0QjdWRzkifSx7ImlkIjoiaVN2Rm1GelRzR2o2OFpEOW5RVVcifSx7ImlkIjoibDQ1RzB6ZjNPbENiT1FBckJaUUwifSx7ImlkIjoibG9RWjZzQVhYZzNVQzRtSkgweTQifSx7ImlkIjoibWJvR2JNd1VMc2tTZzdQVjd0elkifSx7ImlkIjoicUh2TEYyUUtoZGl0QzFjT1dqT3EifSx7ImlkIjoickRMOG43UThCWVhUd2p0R0xtN2QifSx7ImlkIjoickZNWmg5SjVxM1pwV2xZVlNRVUgifSx7ImlkIjoiczliZzlDQWlTYzFXNThhMXlRRGYifSx7ImlkIjoidEludlJnZlNCNUFqZzdZa2dMSEwifSx7ImlkIjoidFZPT0U4VUVlcm9nVEM2b0Z5MVAifSx7ImlkIjoidjNMV0J1YlNSV2Z0U211azBlaFoifSx7ImlkIjoidjRERmJNbm5RdWMwd0lQdktlQ0QifSx7ImlkIjoidmxHdzB0TnFrcXB1NmRPMGhTQTAifV0sImRlcGFydG1lbnQiOiJkYXRvcyIsImVtYWlsIjoiamNvcm9uYUBlcGEuZGlnaXRhbCIsImV4cCI6MTY5NTg1NzQxNSwiaWF0IjoiMjAyMy0wOS0yN1QyMjozMDoxNS43ODk1NTA3NTZaIiwicHVibGljQWNjZXNzRGF0ZSI6IiIsInVzZXJJRCI6IlBLVFFVRU5mTU1UVnFyTXg2VVlxazdKSzVoWjIifQ.HbICpzNTUr3VzuvJmK-Ke3h1Hgc05zrN1ULQrdLcVzI"
 
 # Crear servidor MCP
-mcp = FastMCP("Pitagoras API")
+mcp = FastMCP("Pitagoras API", dependencies=["httpx"])
 
 # -------------------- Helpers --------------------
 
@@ -69,10 +69,10 @@ async def get_customers_resource(email: str) -> str:
         customer_name = customer.get("name", "Nombre desconocido")
         
         accounts_info = []
-        for account in customer.get("account", []):
+        for account in customer.get("accounts", []):
             account_id = account.get("accountID", "ID desconocido")
             account_name = account.get("name", "Nombre desconocido")
-            provider = account.get("Provider", "Proveedor desconocido")
+            provider = account.get("provider", "Proveedor desconocido")
             accounts_info.append(f"    - Cuenta: {account_name} (ID: {account_id}, Proveedor: {provider})")
         
         accounts_text = "\n".join(accounts_info) if accounts_info else "    - No hay cuentas disponibles"
@@ -84,6 +84,57 @@ async def get_customers_resource(email: str) -> str:
     return "Clientes disponibles:\n\n" + "\n\n".join(customers_info)
 
 # -------------------- Tools --------------------
+
+@mcp.tool()
+async def obtener_datos_cuenta_ads(email: str, cliente_id: str, provider: str) -> str:
+    """
+    Obtiene los datos necesarios de una cuenta para hacer llamadas a la API de ads.
+    
+    Args:
+        email: El correo electrónico del usuario.
+        cliente_id: El ID del cliente del que se quieren consultar las cuentas de ads.
+        provider: El proveedor (adwords, facebook) para el que se quieren las cuentas.
+    
+    Returns:
+        Un formato JSON con los datos necesarios para hacer llamadas a la API de ads.
+    """
+    result = await get_customers(email)
+    
+    if "error" in result:
+        return f"Error al obtener datos del cliente: {result['error']}"
+    
+    # Buscar el cliente específico
+    cliente = None
+    for c in result.get("customers", []):
+        if c.get("ID") == cliente_id:
+            cliente = c
+            break
+    
+    if not cliente:
+        return f"No se encontró el cliente con ID: {cliente_id}"
+    
+    # Filtrar las cuentas por proveedor
+    cuentas_filtradas = []
+    for account in cliente.get("accounts", []):
+        if account.get("provider", "").lower() == provider.lower():
+            if provider.lower() == "adwords":
+                cuentas_filtradas.append({
+                    "name": account.get("name", "Nombre desconocido"),
+                    "account_id": str(account.get("accountID", "")),
+                    "login_customer_id": str(account.get("externalLoginCustomerID", ""))
+                })
+            elif provider.lower() == "facebook":
+                cuentas_filtradas.append({
+                    "name": account.get("name", "Nombre desconocido"),
+                    "account_id": str(account.get("accountID", ""))
+                })
+    
+    if not cuentas_filtradas:
+        return f"No se encontraron cuentas de {provider} para este cliente."
+    
+    # Formatear el resultado en JSON
+    import json
+    return json.dumps(cuentas_filtradas, ensure_ascii=False, indent=2)
 
 @mcp.tool()
 async def obtener_clientes(email: str) -> str:
@@ -106,7 +157,7 @@ async def obtener_clientes(email: str) -> str:
     for customer in result.get("customers", []):
         customer_id = customer.get("ID", "ID desconocido")
         customer_name = customer.get("name", "Nombre desconocido")
-        account_count = len(customer.get("account", []))
+        account_count = len(customer.get("accounts", []))
         
         customers_info.append(f"- {customer_name} (ID: {customer_id}): {account_count} cuentas")
     
@@ -144,12 +195,13 @@ async def obtener_detalles_cliente(email: str, cliente_id: str) -> str:
     
     # Formatear los detalles del cliente
     customer_name = cliente.get("name", "Nombre desconocido")
+    status = cliente.get("status", "Estado desconocido")
     
     accounts_info = []
-    for account in cliente.get("account", []):
+    for account in cliente.get("accounts", []):
         account_id = account.get("accountID", "ID desconocido")
         account_name = account.get("name", "Nombre desconocido")
-        provider = account.get("Provider", "Proveedor desconocido")
+        provider = account.get("provider", "Proveedor desconocido")
         currency = account.get("currency", "Moneda desconocida")
         business_unit = account.get("businessUnit", "Unidad de negocio desconocida")
         vertical = account.get("vertical", "Vertical desconocido")
@@ -174,9 +226,25 @@ async def obtener_detalles_cliente(email: str, cliente_id: str) -> str:
     
     accounts_text = "\n\n".join(accounts_info) if accounts_info else "No hay cuentas disponibles"
     
-    return f"Detalles del cliente: {customer_name} (ID: {cliente_id})\n\nCuentas:\n\n{accounts_text}"
+    return f"Detalles del cliente: {customer_name} (ID: {cliente_id})\nEstado: {status}\n\nCuentas:\n\n{accounts_text}"
 
 # -------------------- Prompts --------------------
+
+@mcp.prompt()
+def obtener_cuenta_ads(email: str, cliente_id: str, provider: str) -> str:
+    """
+    Prompt para obtener detalles de cuentas de ads para un cliente específico.
+    
+    Args:
+        email: El correo electrónico del usuario.
+        cliente_id: El ID del cliente para el que se consultarán las cuentas.
+        provider: El proveedor de ads (adwords, facebook).
+    """
+    return f"""Por favor, obtén las cuentas de {provider} para el cliente con ID '{cliente_id}' 
+para el usuario con correo electrónico '{email}'.
+
+Necesito estos datos en formato JSON para poder realizar llamadas a la API de {provider}.
+Si hay múltiples cuentas, muéstralas todas."""
 
 @mcp.prompt()
 def consultar_clientes(email: str) -> str:
