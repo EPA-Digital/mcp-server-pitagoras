@@ -17,7 +17,7 @@ async def make_api_request(endpoint: str, method: str = "GET", data: Optional[Di
     """Realiza una petición a la API de Pitagoras"""
     url = f"{PITAGORAS_API_BASE_URL}/{endpoint}"
     headers = {
-        "Authorization": f"Bearer {AUTH_TOKEN}",
+        "Authorization": AUTH_TOKEN,  # Enviar el token sin el prefijo "Bearer "
         "Content-Type": "application/json"
     }
     
@@ -227,6 +227,119 @@ async def obtener_detalles_cliente(email: str, cliente_id: str) -> str:
     accounts_text = "\n\n".join(accounts_info) if accounts_info else "No hay cuentas disponibles"
     
     return f"Detalles del cliente: {customer_name} (ID: {cliente_id})\nEstado: {status}\n\nCuentas:\n\n{accounts_text}"
+
+
+@mcp.tool()
+async def generar_reporte_facebook_simple(email: str, cliente_id: str, campos: str, start_date: str, end_date: str) -> str:
+    """
+    Genera un reporte de Facebook Ads utilizando las cuentas de un cliente específico.
+    
+    Args:
+        email: El correo electrónico del usuario.
+        cliente_id: El ID del cliente para el que se generará el reporte.
+        campos: Lista de campos separados por comas. Ejemplo: "date_start,campaign_name,spend"
+        start_date: Fecha de inicio en formato YYYY-MM-DD.
+        end_date: Fecha de fin en formato YYYY-MM-DD.
+    
+    Returns:
+        Reporte con los datos solicitados en formato tabular.
+    """
+    # Obtener cuentas de Facebook del cliente
+    result = await get_customers(email)
+    
+    if "error" in result:
+        return f"Error al obtener datos del cliente: {result['error']}"
+    
+    # Buscar el cliente específico
+    cliente = None
+    for c in result.get("customers", []):
+        if c.get("ID") == cliente_id:
+            cliente = c
+            break
+    
+    if not cliente:
+        return f"No se encontró el cliente con ID: {cliente_id}"
+    
+    # Filtrar las cuentas de Facebook
+    cuentas_facebook = []
+    for account in cliente.get("accounts", []):
+        if account.get("provider", "").lower() == "facebook":
+            cuentas_facebook.append({
+                "name": account.get("name", "Nombre desconocido"),
+                "account_id": str(account.get("accountID", ""))
+            })
+    
+    if not cuentas_facebook:
+        return f"No se encontraron cuentas de Facebook para el cliente con ID: {cliente_id}"
+    
+    # Convertir campos de string a lista
+    campos_lista = [campo.strip() for campo in campos.split(",")]
+    
+    # Verificar fechas
+    from datetime import datetime
+    try:
+        datetime.strptime(start_date, "%Y-%m-%d")
+        datetime.strptime(end_date, "%Y-%m-%d")
+    except ValueError:
+        return "Error: Las fechas deben estar en formato YYYY-MM-DD."
+    
+    # Generar el reporte
+    result = await generate_facebook_report(cuentas_facebook, campos_lista, start_date, end_date)
+    
+    if "error" in result:
+        return result["error"]
+    
+    # Formatear el reporte para mostrarlo de forma tabular
+    headers = result.get("headers", [])
+    rows = result.get("rows", [])
+    errors = result.get("errors", [])
+    
+    if not headers or not rows:
+        return "No se encontraron datos para el reporte con los criterios especificados."
+    
+    # Crear encabezado de la tabla
+    header_row = " | ".join(headers)
+    separator = "-" * len(header_row)
+    
+    # Formatear filas
+    formatted_rows = []
+    for row in rows:
+        formatted_rows.append(" | ".join([str(col) for col in row]))
+    
+    # Errores
+    error_section = ""
+    if errors:
+        error_section = "\n\nErrores encontrados:\n" + "\n".join([f"- {error}" for error in errors])
+    
+    return f"Reporte de Facebook Ads para {cliente.get('name', 'cliente desconocido')}:\n\n{header_row}\n{separator}\n" + "\n".join(formatted_rows) + error_section
+
+async def get_facebook_schema() -> Dict:
+    """Obtiene el esquema de campos disponibles para Facebook"""
+    try:
+        return await make_api_request("facebook/Schema")
+    except httpx.HTTPStatusError as e:
+        return {"error": f"Error al obtener el esquema de Facebook: {str(e)}"}
+
+async def generate_facebook_report(accounts: List[Dict], fields: List[str], start_date: str, end_date: str) -> Dict:
+    """Genera un reporte de Facebook Ads"""
+    try:
+        data = {
+            "accounts": accounts,
+            "fields": fields,
+            "start_date": start_date,
+            "end_date": end_date
+        }
+        return await make_api_request("facebook/report", method="POST", data=data)
+    except httpx.HTTPStatusError as e:
+        status_code = e.response.status_code
+        error_msg = f"Error {status_code} al generar el reporte de Facebook Ads"
+        
+        if status_code == 400:
+            error_msg = "Parámetros faltantes o incorrectos en la solicitud"
+        elif status_code == 401:
+            error_msg = "No se encontró el token de autorización en el encabezado"
+        
+        return {"error": error_msg}
 
 # -------------------- Prompts --------------------
 
