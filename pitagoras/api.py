@@ -1,7 +1,7 @@
 # pitagoras/api.py
 import httpx
 import logging
-import datetime
+from datetime import datetime
 from typing import Dict, List, Any, Optional
 
 from .config import ENDPOINTS, AUTH_TOKEN, DEFAULT_USER_EMAIL
@@ -68,34 +68,18 @@ async def get_google_ads_report(
 
 
 async def get_facebook_ads_report(
-    customer_id: str,
-    accounts: List[str],
+    accounts: List[Dict[str, str]],
     fields: List[str],
     start_date: str,
     end_date: str
 ) -> Dict[str, Any]:
     """Get Facebook Ads report data"""
-    # Formato esperado para parsed_accounts
-    parsed_accounts = [{"account_id": account_id, "name": f"Account {account_id}"} for account_id in accounts]
-    
-    # Construir el payload según el formato esperado por la API
+    # El formato correcto del payload según el ejemplo actualizado
     payload = {
-        "provider": "fb",
-        "customer": customer_id,
-        "query_name": "data_fb",
-        "parsed_accounts": parsed_accounts,
         "accounts": accounts,
-        "date_range": {
-            "start": start_date,
-            "end": end_date
-        },
-        "fields": fields
-    }
-    
-    # Agregar opcional preset_date para compatibilidad con el ejemplo
-    payload["preset_date"] = {
-        "range": "custom",
-        "days": (datetime.fromisoformat(end_date) - datetime.fromisoformat(start_date)).days + 1
+        "fields": fields,
+        "start_date": start_date,
+        "end_date": end_date
     }
     
     logger.info(f"Requesting Facebook Ads data with payload: {payload}")

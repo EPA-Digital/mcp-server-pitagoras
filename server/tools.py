@@ -186,7 +186,7 @@ async def register_tools(mcp: FastMCP):
 
     @mcp.tool()
     async def get_facebook_ads_data(
-        customer_id: str,
+        account_names: List[str],
         account_ids: List[str],
         start_date: str,
         end_date: str,
@@ -196,40 +196,21 @@ async def register_tools(mcp: FastMCP):
         Get Facebook Ads data for specific accounts
         
         Args:
-            customer_id: The customer ID
+            account_names: List of account names (used for display only)
             account_ids: List of Facebook Ad account IDs
             start_date: Start date in YYYY-MM-DD format
             end_date: End date in YYYY-MM-DD format
             fields: Optional list of fields to fetch (defaults to campaign_name, date_start, spend, impressions, clicks)
         """
-        # Verificar primero si el cliente existe
-        customers = await get_customers()
-        target_customer = None
+        # Verificar que las listas de nombres e IDs tengan el mismo tamaño
+        if len(account_names) != len(account_ids):
+            return "Error: La lista de nombres de cuenta y la lista de IDs de cuenta deben tener el mismo tamaño."
         
-        for customer in customers:
-            if customer["ID"] == customer_id:
-                target_customer = customer
-                break
-        
-        if not target_customer:
-            available_customers = [f"{c['ID']} ({c['name']})" for c in customers]
-            return f"Cliente con ID {customer_id} no encontrado. Clientes disponibles: {', '.join(available_customers)}"
-        
-        customer_name = target_customer["name"]
-        
-        # Encontrar todas las cuentas de Facebook Ads para este cliente (si las hay)
-        fb_accounts = []
-        for account in target_customer.get("accounts", []):
-            # Para Facebook, el proveedor podría ser 'fb', 'facebook' o similar
-            if account.get("provider", "").lower() in ["fb", "facebook"]:
-                fb_accounts.append({
-                    "id": account.get("accountID"),
-                    "name": account.get("name")
-                })
-        
-        # Registrar información sobre las cuentas para depuración
-        logger.info(f"Facebook accounts for customer {customer_id}: {fb_accounts}")
-        logger.info(f"Requested account IDs: {account_ids}")
+        # Crear el formato correcto para las cuentas
+        accounts = [
+            {"name": name, "account_id": account_id}
+            for name, account_id in zip(account_names, account_ids)
+        ]
         
         # Establecer campos predeterminados si no se proporcionan
         if not fields:
@@ -238,8 +219,7 @@ async def register_tools(mcp: FastMCP):
         try:
             # Obtener los datos del informe
             data = await get_facebook_ads_report(
-                customer_id=customer_id,
-                accounts=account_ids,
+                accounts=accounts,
                 fields=fields,
                 start_date=start_date,
                 end_date=end_date
@@ -258,7 +238,7 @@ async def register_tools(mcp: FastMCP):
         if not rows:
             return f"No se encontraron datos para las cuentas seleccionadas en el período {start_date} a {end_date}."
         
-        result = [f"Datos de Facebook Ads para {customer_name}:"]
+        result = [f"Datos de Facebook Ads:"]
         result.append(",".join(headers))
         
         for row in rows:
