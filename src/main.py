@@ -4,6 +4,7 @@ Punto de entrada principal para el servidor MCP de Pitágoras.
 
 import asyncio
 import logging
+import time
 from datetime import date, datetime, timedelta
 from io import BytesIO
 from typing import Dict, List, Optional, Set, Union
@@ -37,11 +38,44 @@ from services import (
 )
 
 # Configuración de logging
+import os
+from logging.handlers import RotatingFileHandler
+
+# Crear directorio de logs si no existe
+os.makedirs("logs", exist_ok=True)
+
+# Configuración principal de logging
 logging.basicConfig(
     level=logging.INFO,
     format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
 )
+
+# Configurar handler para archivo
+file_handler = RotatingFileHandler(
+    "logs/mcp_server.log",
+    maxBytes=10*1024*1024,  # 10 MB
+    backupCount=5
+)
+file_handler.setFormatter(
+    logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+)
+
+# Configurar logger para este módulo
 logger = logging.getLogger(__name__)
+logger.addHandler(file_handler)
+
+# Configurar logger para performance
+performance_logger = logging.getLogger("pitagoras.performance")
+performance_logger.setLevel(logging.INFO)
+performance_handler = RotatingFileHandler(
+    "logs/performance.log",
+    maxBytes=10*1024*1024,
+    backupCount=3
+)
+performance_handler.setFormatter(
+    logging.Formatter('%(asctime)s - %(message)s')
+)
+performance_logger.addHandler(performance_handler)
 
 # Crear instancia de FastMCP
 mcp = FastMCP("Pitágoras Analytics", description="Servidor MCP para análisis de datos de Pitágoras API")
@@ -174,6 +208,7 @@ async def seleccionar_cuentas(
         provider: Proveedor (adwords, fb, analytics4).
         account_ids: IDs de cuentas separados por comas. Si está vacío, se deseleccionan.
     """
+    start_time = time.time()
     try:
         if not cliente_id and not nombre_cliente:
             return "Por favor, proporciona un ID o nombre de cliente."
@@ -291,11 +326,17 @@ async def seleccionar_cuentas(
                 resultado += f"- {id}\n"
             resultado += "\nVerifique que los IDs correspondan a cuentas existentes."
         
+        # Medir tiempo total
+        elapsed = time.time() - start_time
+        performance_logger.info(f"Selección de cuentas - Cliente: {cliente.ID} - {elapsed:.2f}s")
         return resultado
         
     except Exception as e:
-        logger.error(f"Error al seleccionar cuentas: {str(e)}")
-        return f"Error al seleccionar cuentas: {str(e)}"
+        elapsed = time.time() - start_time
+        error_msg = f"Error al seleccionar cuentas: {str(e)}"
+        logger.error(error_msg)
+        performance_logger.error(f"Selección de cuentas - ERROR - {elapsed:.2f}s - {error_msg}")
+        return error_msg
 
 
 # Herramientas para análisis de rendimiento
@@ -313,6 +354,8 @@ async def analizar_rendimiento_campañas(
         nombre_cliente: Nombre del cliente (alternativa a ID).
         periodo_dias: Número de días para analizar (7, 14, 30).
     """
+    start_time = time.time()
+    logger.info(f"Inicio de análisis de rendimiento de campañas - Período: {periodo_dias} días")
     try:
         if not cliente_id and not nombre_cliente:
             return "Por favor, proporciona un ID o nombre de cliente."
@@ -456,11 +499,17 @@ async def analizar_rendimiento_campañas(
             resultado += f"{i}. {nombre}\n"
             resultado += f"   Costo: {costo:.2f} | Ingresos: {revenue:.2f} | ROAS: {roas:.2f} | CR: {cr:.2f}%\n"
         
+        # Medir tiempo total
+        elapsed = time.time() - start_time
+        performance_logger.info(f"Análisis de rendimiento de campañas - Cliente: {cliente.ID} - {elapsed:.2f}s")
         return resultado
         
     except Exception as e:
+        elapsed = time.time() - start_time
+        error_msg = f"Error al analizar rendimiento de campañas: {str(e)}"
         logger.error(f"Error en análisis de campañas: {str(e)}")
-        return f"Error al analizar rendimiento de campañas: {str(e)}"
+        performance_logger.error(f"Análisis de rendimiento de campañas - ERROR - {elapsed:.2f}s - {error_msg}")
+        return error_msg
 
 
 @mcp.tool()
@@ -477,6 +526,8 @@ async def analizar_rendimiento_canales(
         nombre_cliente: Nombre del cliente (alternativa a ID).
         periodo_dias: Número de días para analizar (7, 14, 30).
     """
+    start_time = time.time()
+    logger.info(f"Inicio de análisis de rendimiento por canal - Período: {periodo_dias} días")
     try:
         if not cliente_id and not nombre_cliente:
             return "Por favor, proporciona un ID o nombre de cliente."
@@ -580,11 +631,17 @@ async def analizar_rendimiento_canales(
                 
                 resultado += f"Hora {h}:00: {sessions} sesiones | CR: {cr:.2f}% | Ingresos: {revenue:.2f}\n"
         
+        # Medir tiempo total
+        elapsed = time.time() - start_time
+        performance_logger.info(f"Análisis de rendimiento por canal - Cliente: {cliente.ID} - {elapsed:.2f}s")
         return resultado
         
     except Exception as e:
+        elapsed = time.time() - start_time
+        error_msg = f"Error al analizar rendimiento por canal: {str(e)}"
         logger.error(f"Error en análisis de canales: {str(e)}")
-        return f"Error al analizar rendimiento por canal: {str(e)}"
+        performance_logger.error(f"Análisis de rendimiento por canal - ERROR - {elapsed:.2f}s - {error_msg}")
+        return error_msg
 
 
 @mcp.tool()
@@ -601,6 +658,8 @@ async def generar_informe_rendimiento(
         nombre_cliente: Nombre del cliente (alternativa a ID).
         periodo_dias: Número de días para analizar (7, 14, 30).
     """
+    start_time = time.time()
+    logger.info(f"Inicio de generación de informe completo - Período: {periodo_dias} días")
     try:
         if not cliente_id and not nombre_cliente:
             return "Por favor, proporciona un ID o nombre de cliente."
@@ -918,11 +977,17 @@ async def generar_informe_rendimiento(
         else:
             resultado += "• No hay suficientes datos para generar conclusiones específicas."
         
+        # Medir tiempo total
+        elapsed = time.time() - start_time
+        performance_logger.info(f"Generación de informe completo - Cliente: {cliente.ID} - {elapsed:.2f}s")
         return resultado
         
     except Exception as e:
+        elapsed = time.time() - start_time
+        error_msg = f"Error al generar informe de rendimiento: {str(e)}"
         logger.error(f"Error al generar informe: {str(e)}")
-        return f"Error al generar informe de rendimiento: {str(e)}"
+        performance_logger.error(f"Generación de informe completo - ERROR - {elapsed:.2f}s - {error_msg}")
+        return error_msg
 
 
 @mcp.tool()
@@ -939,6 +1004,8 @@ async def obtener_roas_por_campaña(
         nombre_cliente: Nombre del cliente (alternativa a ID).
         periodo_dias: Número de días para analizar (7, 14, 30).
     """
+    start_time = time.time()
+    logger.info(f"Inicio de análisis de ROAS por campaña - Período: {periodo_dias} días")
     try:
         if not cliente_id and not nombre_cliente:
             return "Por favor, proporciona un ID o nombre de cliente."
@@ -1073,13 +1140,23 @@ async def obtener_roas_por_campaña(
             
             resultado += f"{nombre_corto} | {roas:.2f} | {costo:.2f} | {revenue:.2f}\n"
         
+        # Medir tiempo total
+        elapsed = time.time() - start_time
+        performance_logger.info(f"Análisis de ROAS por campaña - Cliente: {cliente.ID} - {elapsed:.2f}s")
         return resultado
         
     except Exception as e:
+        elapsed = time.time() - start_time
+        error_msg = f"Error al obtener ROAS por campaña: {str(e)}"
         logger.error(f"Error al obtener ROAS: {str(e)}")
-        return f"Error al obtener ROAS por campaña: {str(e)}"
+        performance_logger.error(f"Análisis de ROAS por campaña - ERROR - {elapsed:.2f}s - {error_msg}")
+        return error_msg
 
 
 # Ejecutar el servidor MCP
 if __name__ == "__main__":
-    mcp.run()
+    logger.info("Iniciando servidor MCP de Pitágoras")
+    try:
+        mcp.run()
+    except Exception as e:
+        logger.critical(f"Error crítico al iniciar el servidor MCP: {str(e)}")

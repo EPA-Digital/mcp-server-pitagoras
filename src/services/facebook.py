@@ -3,6 +3,7 @@ Servicio para gestionar datos de Facebook Ads.
 """
 
 import logging
+import time
 from datetime import date, datetime, timedelta
 from typing import Dict, List, Optional, Tuple
 
@@ -13,6 +14,7 @@ from models import Account, DateRange, ReportResponse
 
 # Configuración de logging
 logger = logging.getLogger(__name__)
+performance_logger = logging.getLogger("pitagoras.performance")
 
 
 class FacebookAdsService:
@@ -55,7 +57,10 @@ class FacebookAdsService:
         # Crear el rango de fechas
         date_range = DateRange(start_date=start_date, end_date=end_date)
         
+        start_time = time.time()
         try:
+            logger.info(f"Obteniendo datos de Facebook Ads para {len(accounts)} cuentas - Cliente: {customer_id} - Período: {start_date} a {end_date}")
+            
             # Obtener los datos
             response = await get_facebook_report(
                 customer_id=customer_id,
@@ -64,11 +69,21 @@ class FacebookAdsService:
                 account_ids=account_ids
             )
             
+            # Medir tiempo de respuesta
+            elapsed = time.time() - start_time
+            performance_logger.info(f"Facebook Ads API - get_campaign_performance - Cliente: {customer_id} - {len(accounts)} cuentas - {elapsed:.2f}s")
+            
             # Procesar los datos
-            return self._process_response(response)
+            df = self._process_response(response)
+            logger.info(f"Procesados {len(df)} registros de campañas de Facebook Ads")
+            return df
             
         except Exception as e:
-            logger.error(f"Error al obtener datos de Facebook Ads: {str(e)}")
+            elapsed = time.time() - start_time
+            error_msg = f"Error al obtener datos de Facebook Ads: {str(e)}"
+            logger.error(error_msg)
+            performance_logger.error(f"Facebook Ads API - ERROR - Cliente: {customer_id} - {elapsed:.2f}s - {error_msg}")
+            
             # Retornar un DataFrame vacío con las columnas esperadas
             return pd.DataFrame(columns=[
                 "date", "campaign_name", "spend", "impressions", "clicks"

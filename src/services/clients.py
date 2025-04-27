@@ -3,6 +3,7 @@ Servicio para gestionar clientes y cuentas de Pitágoras.
 """
 
 import logging
+import time
 from typing import Dict, List, Optional
 
 from api import get_customers
@@ -10,6 +11,7 @@ from models import Account, Customer
 
 # Configuración de logging
 logger = logging.getLogger(__name__)
+performance_logger = logging.getLogger("pitagoras.performance")
 
 
 class ClientService:
@@ -30,13 +32,26 @@ class ClientService:
         Returns:
             Lista de clientes.
         """
+        start_time = time.time()
+        
         if not self._customers_cache or force_refresh:
             try:
+                logger.info("Obteniendo lista de clientes de la API de Pitágoras")
                 response = await get_customers()
                 self._customers_cache = response.customers
+                
+                # Medir tiempo de respuesta
+                elapsed = time.time() - start_time
+                performance_logger.info(f"API de Pitágoras - get_customers - {elapsed:.2f}s - {len(self._customers_cache)} clientes obtenidos")
+                logger.info(f"Se obtuvieron {len(self._customers_cache)} clientes de Pitágoras")
             except Exception as e:
-                logger.error(f"Error al obtener clientes: {str(e)}")
+                elapsed = time.time() - start_time
+                error_msg = f"Error al obtener clientes: {str(e)}"
+                logger.error(error_msg)
+                performance_logger.error(f"API de Pitágoras - ERROR - get_customers - {elapsed:.2f}s - {error_msg}")
                 raise
+        else:
+            logger.debug("Usando cache de clientes (para forzar actualización use force_refresh=True)")
         
         return self._customers_cache
     

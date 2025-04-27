@@ -3,6 +3,7 @@ Servicio para gestionar datos de Google Analytics 4.
 """
 
 import logging
+import time
 from datetime import date, datetime, timedelta
 from typing import Dict, List, Optional, Tuple
 
@@ -17,6 +18,7 @@ from models import Account, DateRange, ReportResponse
 
 # Configuración de logging
 logger = logging.getLogger(__name__)
+performance_logger = logging.getLogger("pitagoras.performance")
 
 
 class GoogleAnalyticsService:
@@ -57,7 +59,10 @@ class GoogleAnalyticsService:
         # Crear el rango de fechas
         date_range = DateRange(start_date=start_date, end_date=end_date)
         
+        start_time = time.time()
         try:
+            logger.info(f"Obteniendo datos de campañas de Google Analytics para {len(accounts)} cuentas - Período: {start_date} a {end_date}")
+            
             # Obtener los datos con filtro para campañas pagadas
             response = await get_analytics_report(
                 accounts=formatted_accounts,
@@ -65,11 +70,21 @@ class GoogleAnalyticsService:
                 include_campaign_filter=True
             )
             
+            # Medir tiempo de respuesta
+            elapsed = time.time() - start_time
+            performance_logger.info(f"Google Analytics API - get_campaign_performance - {len(accounts)} cuentas - {elapsed:.2f}s")
+            
             # Procesar los datos
-            return self._process_campaign_response(response)
+            df = self._process_campaign_response(response)
+            logger.info(f"Procesados {len(df)} registros de campañas de Google Analytics")
+            return df
             
         except Exception as e:
-            logger.error(f"Error al obtener datos de campañas de Google Analytics: {str(e)}")
+            elapsed = time.time() - start_time
+            error_msg = f"Error al obtener datos de campañas de Google Analytics: {str(e)}"
+            logger.error(error_msg)
+            performance_logger.error(f"Google Analytics API - ERROR - {elapsed:.2f}s - {error_msg}")
+            
             # Retornar un DataFrame vacío con las columnas esperadas
             return pd.DataFrame(columns=[
                 "date", "campaign_name", "source_medium", 
@@ -143,18 +158,31 @@ class GoogleAnalyticsService:
         # Crear el rango de fechas
         date_range = DateRange(start_date=start_date, end_date=end_date)
         
+        start_time = time.time()
         try:
+            logger.info(f"Obteniendo datos de canales de Google Analytics para {len(accounts)} cuentas - Período: {start_date} a {end_date}")
+            
             # Obtener los datos
             response = await get_analytics_channel_report(
                 accounts=formatted_accounts,
                 date_range=date_range
             )
             
+            # Medir tiempo de respuesta
+            elapsed = time.time() - start_time
+            performance_logger.info(f"Google Analytics API - get_channel_performance - {len(accounts)} cuentas - {elapsed:.2f}s")
+            
             # Procesar los datos
-            return self._process_channel_response(response)
+            df = self._process_channel_response(response)
+            logger.info(f"Procesados {len(df)} registros de canales de Google Analytics")
+            return df
             
         except Exception as e:
-            logger.error(f"Error al obtener datos de canales de Google Analytics: {str(e)}")
+            elapsed = time.time() - start_time
+            error_msg = f"Error al obtener datos de canales de Google Analytics: {str(e)}"
+            logger.error(error_msg)
+            performance_logger.error(f"Google Analytics API - ERROR - {elapsed:.2f}s - {error_msg}")
+            
             # Retornar un DataFrame vacío
             return pd.DataFrame(columns=[
                 "channel", "sessions", "conversions", "transactions", "revenue", 
@@ -227,18 +255,31 @@ class GoogleAnalyticsService:
         # Crear el rango de fechas
         date_range = DateRange(start_date=start_date, end_date=end_date)
         
+        start_time = time.time()
         try:
+            logger.info(f"Obteniendo datos por hora de Google Analytics para {len(accounts)} cuentas - Período: {start_date} a {end_date}")
+            
             # Obtener los datos
             response = await get_analytics_hourly_report(
                 accounts=formatted_accounts,
                 date_range=date_range
             )
             
+            # Medir tiempo de respuesta
+            elapsed = time.time() - start_time
+            performance_logger.info(f"Google Analytics API - get_hourly_performance - {len(accounts)} cuentas - {elapsed:.2f}s")
+            
             # Procesar los datos
-            return self._process_hourly_response(response)
+            df = self._process_hourly_response(response)
+            logger.info(f"Procesados {len(df)} registros de datos por hora de Google Analytics")
+            return df
             
         except Exception as e:
-            logger.error(f"Error al obtener datos por hora de Google Analytics: {str(e)}")
+            elapsed = time.time() - start_time
+            error_msg = f"Error al obtener datos por hora de Google Analytics: {str(e)}"
+            logger.error(error_msg)
+            performance_logger.error(f"Google Analytics API - ERROR - {elapsed:.2f}s - {error_msg}")
+            
             # Retornar un DataFrame vacío
             return pd.DataFrame(columns=[
                 "hour", "sessions", "conversions", "transactions", "revenue", 
@@ -304,6 +345,9 @@ class GoogleAnalyticsService:
         Returns:
             Diccionario con el resumen de los datos de Analytics.
         """
+        start_time = time.time()
+        logger.info(f"Generando resumen de Analytics para {len(accounts)} cuentas - Período: {days} días")
+        
         # Calcular las fechas
         end_date = date.today()
         start_date = end_date - timedelta(days=days)
@@ -312,6 +356,10 @@ class GoogleAnalyticsService:
         campaign_df = await self.get_campaign_performance(accounts, start_date, end_date)
         channel_df = await self.get_channel_performance(accounts, start_date, end_date)
         hourly_df = await self.get_hourly_performance(accounts, start_date, end_date)
+        
+        # Medir tiempo total
+        elapsed = time.time() - start_time
+        performance_logger.info(f"Analytics Summary - {len(accounts)} cuentas - {days} días - {elapsed:.2f}s")
         
         # Si no hay datos, retornar un resumen básico
         if campaign_df.empty and channel_df.empty and hourly_df.empty:
