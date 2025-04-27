@@ -1,9 +1,9 @@
 # Pitagoras MCP server
 
 ## Instrucciones
-Escribe el código del MCP server, usa las mejores prácticas de programación en Python, separa los scripts en una estructura clara y conveniente para no tener todo en un solo script, el token de Pitágoras esta en un .env como AUTH_TOKEN. El flow para el cliente del MCP sería primero que el usuario seleccione el cliente, luego los medios y por último las cuentas de las que requiere extraer los datos.
+Escribe el código del MCP server, usa las mejores prácticas de programación en Python, separa los scripts en una estructura clara y conveniente para no tener todo en un solo script, el token de Pitágoras esta en un .env como AUTH_TOKEN. El flow para el cliente del MCP sera que primero que el usuario seleccione el cliente, luego los medios y por último las cuentas de las que requiere extraer los datos.
 - El token no debe contener bearer.
-- Vamos a mantener la implementación muy simple, el objetivo es lograr obtener datos, posteriormente haremos más análisis.
+- Vamos a mantener la implementación muy simple, el objetivo es lograr obtener datos, posteriormente haremos transformaciones adicionales.
 - La mayor parte de la lógica de como solicitar datos a cada medio la vamos a meter en los prompts (Prompts are reusable templates that help LLMs interact with your server effectively) para dejar la lógica de extracción de datos muy simple.
 - Implementa las mejores prácticas de programación, evita usar for lops e implementa logs para saber como se construye la petición a Pitágoras y el resultado que regresa.
 
