@@ -1,7 +1,7 @@
-# server/tools.py
-from datetime import datetime, timedelta
-from typing import List, Dict, Any, Optional
 import logging
+import sys
+from datetime import datetime
+from typing import List, Dict, Any, Optional
 
 from mcp.server.fastmcp import FastMCP
 from pitagoras.api import (
@@ -11,15 +11,14 @@ from pitagoras.api import (
     get_google_analytics_report
 )
 
-# Configuración básica del logger
+# Configurar logging para escribir en stderr (que MCP captura automáticamente)
 logging.basicConfig(
     level=logging.INFO,
-    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
-    filename='app.log'  # Si quieres guardar los logs en un archivo
+    format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
+    stream=sys.stderr  # Escribir en stderr en lugar de un archivo
 )
 
-# Crear un logger
-logger = logging.getLogger(__name__)
+logger = logging.getLogger("pitagoras")
 
 async def register_tools(mcp: FastMCP):
     """Register all MCP tools"""
