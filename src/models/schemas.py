@@ -14,7 +14,7 @@ class Provider(str, Enum):
     
     GOOGLE_ADS = "adwords"
     FACEBOOK = "fb"
-    GOOGLE_ANALYTICS = "ga4"
+    GOOGLE_ANALYTICS = "analytics4"
 
 
 class Manager(BaseModel):

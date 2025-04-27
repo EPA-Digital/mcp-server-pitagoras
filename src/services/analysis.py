@@ -159,7 +159,7 @@ class AnalysisService:
         
         analytics_accounts = [
             account for account in customer.accounts 
-            if account.provider.lower() in ['ga4', 'analytics']
+            if account.provider.lower() in ['analytics4']
         ]
         
         # Calcular fechas
@@ -259,7 +259,7 @@ class AnalysisService:
         
         analytics_accounts = [
             account for account in customer.accounts 
-            if account.provider.lower() in ['ga4', 'analytics']
+            if account.provider.lower() in ['analytics4']
         ]
         
         if not analytics_accounts:
@@ -458,7 +458,7 @@ class AnalysisService:
             
             analytics_accounts = [
                 account for account in customer.accounts 
-                if account.provider.lower() in ['ga4', 'analytics']
+                if account.provider.lower() in ['analytics4']
             ]
             
             # Obtener datos combinados para gráficos

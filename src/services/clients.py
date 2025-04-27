@@ -89,7 +89,7 @@ class ClientService:
         
         Args:
             customer_id: ID del cliente.
-            provider: Nombre del proveedor (adwords, fb, ga4).
+            provider: Nombre del proveedor (adwords, fb, analytics4).
             
         Returns:
             Lista de cuentas que corresponden al proveedor.

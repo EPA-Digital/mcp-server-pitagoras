@@ -6,7 +6,7 @@ Escribe el código del MCP server, usa las mejores prácticas de programación e
 ## Contexto
 Trabajo en una agencia de marketing digital especializada en optimizar campañas de paid media.
 Pitágoras que es un herramienta interna de extracción de datos de los medios (Google Ads, facebook Ads y Google Analytics) que permite acceder a los datos de las plataformas desde un sidebar en google sheets (Es similar a supermetrics) vamos a consumir su API para crear el MCP.
-Este MCP será  usado por el CEO de mi agencia desde claude desktop, empecemos con una implementación muy sencilla, Se requiere revisar el rendimiento general de la cuenta, es decir para un cliente que puede tener una o mas cuentas de google ads y facebook ads quiero el costo, impresiones y clics por campaña y eso lo une con las sesiones, transacciones y revenue de google analytics (GA4) por nombre de campaña y fecha para sacar el ROAS y el CR, normalmente le interesa ver las tendencias de los últimos 7, 14 o 30 días.
+Este MCP será  usado por el CEO de mi agencia desde claude desktop, empecemos con una implementación muy sencilla, Se requiere revisar el rendimiento general de la cuenta, es decir para un cliente que puede tener una o mas cuentas de google ads y facebook ads quiero el costo, impresiones y clics por campaña y eso lo une con las sesiones, transacciones y revenue de google analytics (analytics4) por nombre de campaña y fecha para sacar el ROAS y el CR, normalmente le interesa ver las tendencias de los últimos 7, 14 o 30 días.
 Adicionalmente de GA4 veremos el rendimiento por canal y las siguiente métricas: sessions, Conv Rate, AOV, transactions y transactionRevenue, también el rendimiento por hora del día para las mismas métricas.
 
 ## Pitágoras API endopoints

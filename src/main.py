@@ -54,7 +54,7 @@ analytics_service = GoogleAnalyticsService()
 analysis_service = AnalysisService()
 
 # Diccionario para almacenar selecciones de cuentas por cliente
-# Formato: {cliente_id: {"adwords": [account_ids], "fb": [account_ids], "ga4": [account_ids]}}
+# Formato: {cliente_id: {"adwords": [account_ids], "fb": [account_ids], "analytics4": [account_ids]}}
 selected_accounts = {}
 
 
@@ -171,7 +171,7 @@ async def seleccionar_cuentas(
     Args:
         cliente_id: ID del cliente.
         nombre_cliente: Nombre del cliente (alternativa a ID).
-        provider: Proveedor (adwords, fb, ga4).
+        provider: Proveedor (adwords, fb, analytics4).
         account_ids: IDs de cuentas separados por comas. Si está vacío, se deseleccionan.
     """
     try:
@@ -189,7 +189,7 @@ async def seleccionar_cuentas(
             return f"No se encontró el cliente con ID: {cliente_id} o nombre: {nombre_cliente}."
         
         # Validar proveedor
-        valid_providers = ["adwords", "fb", "ga4"]
+        valid_providers = ["adwords", "fb", "analytics4"]
         if provider and provider.lower() not in valid_providers:
             return f"Proveedor no válido. Use: {', '.join(valid_providers)}"
         
@@ -198,7 +198,7 @@ async def seleccionar_cuentas(
             selected_accounts[cliente.ID] = {
                 "adwords": [],
                 "fb": [],
-                "ga4": []
+                "analytics4": []
             }
         
         # Si no se especifica proveedor, mostrar los disponibles
@@ -340,7 +340,7 @@ async def analizar_rendimiento_campañas(
         # Obtener cuentas seleccionadas
         selected = selected_accounts[cliente_id]
         
-        if not (selected["adwords"] or selected["fb"] or selected["ga4"]):
+        if not (selected["adwords"] or selected["fb"] or selected["analytics4"]):
             return f"No se han seleccionado cuentas para análisis. Use la herramienta 'seleccionar_cuentas' primero."
         
         # Filtrar cuentas por las seleccionadas
@@ -363,10 +363,10 @@ async def analizar_rendimiento_campañas(
             ]
         
         # Obtener cuentas de Analytics seleccionadas
-        if selected["ga4"]:
+        if selected["analytics4"]:
             analytics_accounts = [
                 cuenta for cuenta in cliente.accounts 
-                if cuenta.provider.lower() in ['ga4', 'analytics'] and cuenta.accountID in selected["ga4"]
+                if cuenta.provider.lower() in ['analytics4', 'analytics'] and cuenta.accountID in selected["analytics4"]
             ]
         
         # Calcular fechas
@@ -504,12 +504,12 @@ async def analizar_rendimiento_canales(
         # Obtener cuentas de Analytics seleccionadas
         selected = selected_accounts[cliente_id]
         
-        if not selected["ga4"]:
+        if not selected["analytics4"]:
             return f"No se han seleccionado cuentas de Google Analytics para análisis. Use la herramienta 'seleccionar_cuentas' primero."
         
         analytics_accounts = [
             cuenta for cuenta in cliente.accounts 
-            if cuenta.provider.lower() in ['ga4', 'analytics'] and cuenta.accountID in selected["ga4"]
+            if cuenta.provider.lower() in ['analytics4'] and cuenta.accountID in selected["analytics4"]
         ]
         
         if not analytics_accounts:
@@ -628,7 +628,7 @@ async def generar_informe_rendimiento(
         # Obtener cuentas seleccionadas
         selected = selected_accounts[cliente_id]
         
-        if not (selected["adwords"] or selected["fb"] or selected["ga4"]):
+        if not (selected["adwords"] or selected["fb"] or selected["analytics4"]):
             return f"No se han seleccionado cuentas para análisis. Use la herramienta 'seleccionar_cuentas' primero."
         
         # Filtrar cuentas por las seleccionadas
@@ -651,10 +651,10 @@ async def generar_informe_rendimiento(
             ]
         
         # Obtener cuentas de Analytics seleccionadas
-        if selected["ga4"]:
+        if selected["analytics4"]:
             analytics_accounts = [
                 cuenta for cuenta in cliente.accounts 
-                if cuenta.provider.lower() in ['ga4', 'analytics'] and cuenta.accountID in selected["ga4"]
+                if cuenta.provider.lower() in ['analytics4', 'analytics'] and cuenta.accountID in selected["analytics4"]
             ]
         
         # Calcular fechas
@@ -989,10 +989,10 @@ async def obtener_roas_por_campaña(
             ]
         
         # Obtener cuentas de Analytics seleccionadas (para datos de conversión)
-        if selected["ga4"]:
+        if selected["analytics4"]:
             analytics_accounts = [
                 cuenta for cuenta in cliente.accounts 
-                if cuenta.provider.lower() in ['ga4', 'analytics'] and cuenta.accountID in selected["ga4"]
+                if cuenta.provider.lower() in ['analytics4', 'analytics'] and cuenta.accountID in selected["analytics4"]
             ]
         
         # Calcular fechas
