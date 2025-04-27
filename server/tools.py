@@ -1,6 +1,7 @@
 # server/tools.py
 from datetime import datetime, timedelta
 from typing import List, Dict, Any, Optional
+import logging
 
 from mcp.server.fastmcp import FastMCP
 from pitagoras.api import (
@@ -10,6 +11,15 @@ from pitagoras.api import (
     get_google_analytics_report
 )
 
+# Configuración básica del logger
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
+    filename='app.log'  # Si quieres guardar los logs en un archivo
+)
+
+# Crear un logger
+logger = logging.getLogger(__name__)
 
 async def register_tools(mcp: FastMCP):
     """Register all MCP tools"""
@@ -192,27 +202,63 @@ async def register_tools(mcp: FastMCP):
             end_date: End date in YYYY-MM-DD format
             fields: Optional list of fields to fetch (defaults to campaign_name, date_start, spend, impressions, clicks)
         """
-        # Set default fields if not provided
+        # Verificar primero si el cliente existe
+        customers = await get_customers()
+        target_customer = None
+        
+        for customer in customers:
+            if customer["ID"] == customer_id:
+                target_customer = customer
+                break
+        
+        if not target_customer:
+            available_customers = [f"{c['ID']} ({c['name']})" for c in customers]
+            return f"Cliente con ID {customer_id} no encontrado. Clientes disponibles: {', '.join(available_customers)}"
+        
+        customer_name = target_customer["name"]
+        
+        # Encontrar todas las cuentas de Facebook Ads para este cliente (si las hay)
+        fb_accounts = []
+        for account in target_customer.get("accounts", []):
+            # Para Facebook, el proveedor podría ser 'fb', 'facebook' o similar
+            if account.get("provider", "").lower() in ["fb", "facebook"]:
+                fb_accounts.append({
+                    "id": account.get("accountID"),
+                    "name": account.get("name")
+                })
+        
+        # Registrar información sobre las cuentas para depuración
+        logger.info(f"Facebook accounts for customer {customer_id}: {fb_accounts}")
+        logger.info(f"Requested account IDs: {account_ids}")
+        
+        # Establecer campos predeterminados si no se proporcionan
         if not fields:
             fields = ["campaign_name", "date_start", "spend", "impressions", "clicks"]
         
-        # Get the report data
-        data = await get_facebook_ads_report(
-            customer_id=customer_id,
-            accounts=account_ids,
-            fields=fields,
-            start_date=start_date,
-            end_date=end_date
-        )
+        try:
+            # Obtener los datos del informe
+            data = await get_facebook_ads_report(
+                customer_id=customer_id,
+                accounts=account_ids,
+                fields=fields,
+                start_date=start_date,
+                end_date=end_date
+            )
+            
+        except Exception as e:
+            return f"Error al obtener datos de Facebook Ads: {str(e)}"
         
-        # Format the response
+        # Formatear la respuesta
         if "errors" in data and data["errors"]:
-            return f"Errors occurred: {data['errors']}"
+            return f"Errores en la API: {data['errors']}"
         
         headers = data.get("headers", [])
         rows = data.get("rows", [])
         
-        result = [f"Facebook Ads data for customer {customer_id}:"]
+        if not rows:
+            return f"No se encontraron datos para las cuentas seleccionadas en el período {start_date} a {end_date}."
+        
+        result = [f"Datos de Facebook Ads para {customer_name}:"]
         result.append(",".join(headers))
         
         for row in rows:

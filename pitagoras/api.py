@@ -1,6 +1,7 @@
 # pitagoras/api.py
 import httpx
 import logging
+import datetime
 from typing import Dict, List, Any, Optional
 
 from .config import ENDPOINTS, AUTH_TOKEN, DEFAULT_USER_EMAIL
@@ -74,8 +75,10 @@ async def get_facebook_ads_report(
     end_date: str
 ) -> Dict[str, Any]:
     """Get Facebook Ads report data"""
+    # Formato esperado para parsed_accounts
     parsed_accounts = [{"account_id": account_id, "name": f"Account {account_id}"} for account_id in accounts]
     
+    # Construir el payload según el formato esperado por la API
     payload = {
         "provider": "fb",
         "customer": customer_id,
@@ -89,24 +92,42 @@ async def get_facebook_ads_report(
         "fields": fields
     }
     
+    # Agregar opcional preset_date para compatibilidad con el ejemplo
+    payload["preset_date"] = {
+        "range": "custom",
+        "days": (datetime.fromisoformat(end_date) - datetime.fromisoformat(start_date)).days + 1
+    }
+    
     logger.info(f"Requesting Facebook Ads data with payload: {payload}")
     
     async with httpx.AsyncClient() as client:
         headers = {}
         if AUTH_TOKEN:
             headers["Authorization"] = AUTH_TOKEN
-            
-        response = await client.post(
-            ENDPOINTS["facebook_ads"],
-            json=payload,
-            headers=headers
-        )
-        response.raise_for_status()
         
-        data = response.json()
-        logger.info(f"Received Facebook Ads data with {len(data.get('rows', []))} rows")
-        return data
-
+        try:
+            response = await client.post(
+                ENDPOINTS["facebook_ads"],
+                json=payload,
+                headers=headers
+            )
+            response.raise_for_status()
+            
+            data = response.json()
+            logger.info(f"Received Facebook Ads data with {len(data.get('rows', []))} rows")
+            return data
+        except httpx.HTTPStatusError as e:
+            # Capturar y registrar detalles del error
+            error_body = None
+            try:
+                error_body = e.response.json()
+            except:
+                error_body = e.response.text if e.response.text else "No response body"
+            
+            logger.error(f"HTTP error {e.response.status_code} from Facebook API: {error_body}")
+            
+            # Re-lanzar la excepción con más información
+            raise Exception(f"Error {e.response.status_code} from Facebook API: {error_body}") from e
 
 async def get_google_analytics_report(
     accounts: List[Dict[str, str]],
