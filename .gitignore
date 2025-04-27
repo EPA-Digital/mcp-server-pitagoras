@@ -10,3 +10,4 @@ wheels/
 .venv
 pitagoras-env/
 .env
+*.log
