@@ -166,33 +166,16 @@ https://pitagoras-api-l6dmrzkz7a-uc.a.run.app/api/v1/facebook/report
 
 #### Body
 {
-    "provider": "fb",
-    "preset_date": {
-        "range": "last45Days",
-        "days": 45
-    },
-    "customer": "0MzvbWaTrW7gedBvdwOD",
-    "query_name": "data_fb",
-    "parsed_accounts": [
-        {
-            "name": "Coppel Omnicanal",
-            "account_id": "406656800494680"
-        }
-    ],
-    "accounts": [
-        "406656800494680"
-    ],
-    "date_range": {
-        "end": "2024-05-11",
-        "start": "2022-11-21"
-    },
+    "accounts": [{"name":"Coppel Omnicanal","account_id":"406656800494680"}],
     "fields": [
         "campaign_name",
         "date_start",
         "spend",
         "impressions",
         "clicks"
-    ]
+    ],
+    "start_date": "2025-01-01",
+    "end_date": "2025-01-02"
 }
 
 #### Respuesta
