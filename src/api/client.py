@@ -32,7 +32,7 @@ class PitagorasClient:
         self.auth_token = auth_token or AUTH_TOKEN
         self.headers = {
             "Content-Type": "application/json",
-            "Authorization": f"Bearer {self.auth_token}" if self.auth_token else ""
+            "Authorization": f"{self.auth_token}" if self.auth_token else ""
         }
     
     async def _make_request(
