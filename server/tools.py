@@ -185,8 +185,7 @@ async def register_tools(mcp: FastMCP):
 
     @mcp.tool()
     async def get_facebook_ads_data(
-        account_names: List[str],
-        account_ids: List[str],
+        accounts: List[Dict[str, str]],
         start_date: str,
         end_date: str,
         fields: Optional[List[str]] = None
@@ -195,30 +194,36 @@ async def register_tools(mcp: FastMCP):
         Get Facebook Ads data for specific accounts
         
         Args:
-            account_names: List of account names (used for display only)
-            account_ids: List of Facebook Ad account IDs
+            accounts: List of account objects, each with 'name' and 'account_id' fields
             start_date: Start date in YYYY-MM-DD format
             end_date: End date in YYYY-MM-DD format
             fields: Optional list of fields to fetch (defaults to campaign_name, date_start, spend, impressions, clicks)
         """
-        # Verificar que las listas de nombres e IDs tengan el mismo tamaño
-        if len(account_names) != len(account_ids):
-            return "Error: La lista de nombres de cuenta y la lista de IDs de cuenta deben tener el mismo tamaño."
-        
-        # Crear el formato correcto para las cuentas
-        accounts = [
-            {"name": name, "account_id": account_id}
-            for name, account_id in zip(account_names, account_ids)
-        ]
-        
         # Establecer campos predeterminados si no se proporcionan
         if not fields:
             fields = ["campaign_name", "date_start", "spend", "impressions", "clicks"]
         
+        # Asegurar que el formato de cuentas sea correcto
+        formatted_accounts = []
+        for account in accounts:
+            if isinstance(account, dict) and "name" in account and "account_id" in account:
+                formatted_accounts.append(account)
+            elif isinstance(account, dict) and "name" in account and "id" in account:
+                # Convertir formato alternativo si es necesario
+                formatted_accounts.append({
+                    "name": account["name"],
+                    "account_id": account["id"]
+                })
+            else:
+                logger.warning(f"Formato de cuenta incorrecto, se omitirá: {account}")
+        
+        if not formatted_accounts:
+            return "Error: No se proporcionaron cuentas en el formato correcto. Cada cuenta debe tener 'name' y 'account_id'."
+        
         try:
-            # Obtener los datos del informe
+            # Obtener los datos del informe usando el formato correcto de la API
             data = await get_facebook_ads_report(
-                accounts=accounts,
+                accounts=formatted_accounts,
                 fields=fields,
                 start_date=start_date,
                 end_date=end_date
@@ -237,7 +242,8 @@ async def register_tools(mcp: FastMCP):
         if not rows:
             return f"No se encontraron datos para las cuentas seleccionadas en el período {start_date} a {end_date}."
         
-        result = [f"Datos de Facebook Ads:"]
+        account_names = [account["name"] for account in formatted_accounts]
+        result = [f"Datos de Facebook Ads para {', '.join(account_names)}:"]
         result.append(",".join(headers))
         
         for row in rows:
@@ -343,5 +349,95 @@ async def register_tools(mcp: FastMCP):
         
         for row in rows:
             result.append(",".join(str(cell) for cell in row))
+        
+        return "\n".join(result)
+
+    @mcp.tool()
+    async def list_accounts_by_medium(customer_id: str) -> str:
+        """
+        List all available accounts for a specific customer, grouped by medium
+        
+        Args:
+            customer_id: The customer ID
+        """
+        customers = await get_customers()
+        
+        target_customer = None
+        for customer in customers:
+            if customer["ID"] == customer_id:
+                target_customer = customer
+                break
+        
+        if not target_customer:
+            available_customers = [f"{c['ID']} ({c['name']})" for c in customers]
+            return f"Cliente con ID {customer_id} no encontrado. Clientes disponibles: {', '.join(available_customers)}"
+        
+        customer_name = target_customer["name"]
+        
+        # Agrupar cuentas por tipo de medio
+        accounts_by_medium = {
+            "google_ads": [],
+            "facebook_ads": [],
+            "google_analytics": [],
+            "other": []
+        }
+        
+        for account in target_customer.get("accounts", []):
+            if account.get("provider") == "adwords":
+                accounts_by_medium["google_ads"].append({
+                    "id": account.get("accountID", "N/A"),
+                    "name": account.get("name", "Sin nombre"),
+                    "login_customer_id": account.get("externalLoginCustomerID", "")
+                })
+            elif account.get("provider", "").lower() in ["fb", "facebook"]:
+                accounts_by_medium["facebook_ads"].append({
+                    "id": account.get("accountID", "N/A"),
+                    "name": account.get("name", "Sin nombre")
+                })
+            elif "property_id" in account:
+                accounts_by_medium["google_analytics"].append({
+                    "id": account.get("property_id", "N/A"),
+                    "name": account.get("name", "Sin nombre"),
+                    "credential_email": account.get("credentialEmail", "analytics@epa.digital")
+                })
+            else:
+                accounts_by_medium["other"].append({
+                    "id": account.get("accountID", "N/A"),
+                    "name": account.get("name", "Sin nombre"),
+                    "provider": account.get("provider", "desconocido")
+                })
+        
+        # Formatear la respuesta
+        result = [f"# Cuentas disponibles para {customer_name} (ID: {customer_id})\n"]
+        
+        # Google Ads
+        result.append("## Google Ads")
+        if accounts_by_medium["google_ads"]:
+            for i, account in enumerate(accounts_by_medium["google_ads"], 1):
+                result.append(f"{i}. {account['name']} (ID: {account['id']}, Login Customer ID: {account['login_customer_id']})")
+        else:
+            result.append("*No se encontraron cuentas de Google Ads*")
+        
+        # Facebook Ads
+        result.append("\n## Facebook Ads")
+        if accounts_by_medium["facebook_ads"]:
+            for i, account in enumerate(accounts_by_medium["facebook_ads"], 1):
+                result.append(f"{i}. {account['name']} (ID: {account['id']})")
+        else:
+            result.append("*No se encontraron cuentas de Facebook Ads*")
+        
+        # Google Analytics
+        result.append("\n## Google Analytics")
+        if accounts_by_medium["google_analytics"]:
+            for i, account in enumerate(accounts_by_medium["google_analytics"], 1):
+                result.append(f"{i}. {account['name']} (ID: {account['id']}, Email: {account['credential_email']})")
+        else:
+            result.append("*No se encontraron propiedades de Google Analytics*")
+        
+        # Otras cuentas
+        if accounts_by_medium["other"]:
+            result.append("\n## Otras cuentas")
+            for i, account in enumerate(accounts_by_medium["other"], 1):
+                result.append(f"{i}. {account['name']} (ID: {account['id']}, Proveedor: {account['provider']})")
         
         return "\n".join(result)
