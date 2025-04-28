@@ -88,18 +88,37 @@ async def get_facebook_ads_report(
         headers = {}
         if AUTH_TOKEN:
             headers["Authorization"] = AUTH_TOKEN
+            logger.info(f"Using Authorization header: {AUTH_TOKEN[:5]}...")  # Log primeros 5 caracteres para debug
+        else:
+            logger.warning("No Authorization token found")
         
         try:
+            logger.info(f"Sending request to: {ENDPOINTS['facebook_ads']}")
             response = await client.post(
                 ENDPOINTS["facebook_ads"],
                 json=payload,
-                headers=headers
+                headers=headers,
+                timeout=30.0  # Aumentar timeout
             )
+            
+            # Log de la respuesta para debug
+            logger.info(f"Response status code: {response.status_code}")
+            logger.info(f"Response headers: {response.headers}")
+            
+            # Intentar obtener el cuerpo de la respuesta incluso si el status code no es exitoso
+            try:
+                response_body = response.json()
+                logger.info(f"Response body: {response_body}")
+            except Exception as json_err:
+                logger.warning(f"Couldn't parse response as JSON: {str(json_err)}")
+                logger.info(f"Raw response: {response.text[:500]}...")  # Primeros 500 caracteres
+            
             response.raise_for_status()
             
             data = response.json()
             logger.info(f"Received Facebook Ads data with {len(data.get('rows', []))} rows")
             return data
+            
         except httpx.HTTPStatusError as e:
             # Capturar y registrar detalles del error
             error_body = None
@@ -111,7 +130,17 @@ async def get_facebook_ads_report(
             logger.error(f"HTTP error {e.response.status_code} from Facebook API: {error_body}")
             
             # Re-lanzar la excepción con más información
-            raise Exception(f"Error {e.response.status_code} from Facebook API: {error_body}") from e
+            raise Exception(f"Error HTTP {e.response.status_code} de la API de Facebook: {error_body}") from e
+            
+        except httpx.RequestError as e:
+            # Errores de red, timeout, etc.
+            logger.error(f"Request error with Facebook API: {str(e)}")
+            raise Exception(f"Error de conexión con la API de Facebook: {str(e)}") from e
+            
+        except Exception as e:
+            # Capturar cualquier otro error
+            logger.error(f"Unexpected error with Facebook API: {str(e)}", exc_info=True)
+            raise Exception(f"Error inesperado con la API de Facebook: {str(e)}") from e
 
 async def get_google_analytics_report(
     accounts: List[Dict[str, str]],
