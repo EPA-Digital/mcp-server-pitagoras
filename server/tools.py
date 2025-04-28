@@ -254,6 +254,8 @@ async def register_tools(mcp: FastMCP):
     @mcp.tool()
     async def get_google_analytics_data(
         property_ids: List[str],
+        account_ids: List[str],
+        account_names: List[str],
         start_date: str,
         end_date: str,
         dimensions: Optional[List[str]] = None,
@@ -265,36 +267,28 @@ async def register_tools(mcp: FastMCP):
         
         Args:
             property_ids: List of GA4 property IDs
+            account_ids: List of GA4 account IDs
+            account_names: List of account names
             start_date: Start date in YYYY-MM-DD format
             end_date: End date in YYYY-MM-DD format
             dimensions: Optional list of dimensions (defaults to date, sessionCampaignName, sessionSourceMedium)
             metrics: Optional list of metrics (defaults to sessions, transactions, totalRevenue)
             with_campaign_filter: Whether to filter for campaigns starting with 'aw_' or 'fb_'
         """
-        customers = await get_customers()
+        # Verificar que las listas tengan el mismo tamaño
+        if len(property_ids) != len(account_ids) or len(account_ids) != len(account_names):
+            return "Error: property_ids, account_ids y account_names deben tener el mismo número de elementos."
         
-        # Find the matching GA accounts
-        matching_accounts = []
-        
-        for customer in customers:
-            for account in customer.get("accounts", []):
-                if account.get("property_id") in property_ids:
-                    matching_accounts.append({
-                        "property_id": account["property_id"],
-                        "name": account["name"],
-                        "credential_email": account.get("credentialEmail", "analytics@epa.digital")
-                    })
-        
-        if not matching_accounts:
-            # Create accounts with default values if no matches found
-            matching_accounts = [
-                {
-                    "property_id": property_id,
-                    "name": f"Property {property_id}",
-                    "credential_email": "analytics@epa.digital"
-                }
-                for property_id in property_ids
-            ]
+        # Crear la lista de cuentas con el formato correcto
+        accounts = [
+            {
+                "account_id": account_id,
+                "property_id": property_id,
+                "name": name,
+                "credential_email": "analytics@epa.digital"
+            }
+            for account_id, property_id, name in zip(account_ids, property_ids, account_names)
+        ]
         
         # Set default dimensions and metrics if not provided
         if not dimensions:
@@ -327,24 +321,31 @@ async def register_tools(mcp: FastMCP):
                 ]
             }
         
-        # Get the report data
-        data = await get_google_analytics_report(
-            accounts=matching_accounts,
-            dimensions=dimensions,
-            metrics=metrics,
-            start_date=start_date,
-            end_date=end_date,
-            filters=filters
-        )
+        try:
+            # Get the report data
+            data = await get_google_analytics_report(
+                accounts=accounts,
+                dimensions=dimensions,
+                metrics=metrics,
+                start_date=start_date,
+                end_date=end_date,
+                filters=filters
+            )
+            
+        except Exception as e:
+            return f"Error al obtener datos de Google Analytics: {str(e)}"
         
         # Format the response
         if "errors" in data and data["errors"]:
-            return f"Errors occurred: {data['errors']}"
+            return f"Errores en la API: {data['errors']}"
         
         headers = data.get("headers", [])
         rows = data.get("rows", [])
         
-        result = ["Google Analytics data:"]
+        if not rows:
+            return f"No se encontraron datos para las propiedades seleccionadas en el período {start_date} a {end_date}."
+        
+        result = ["Datos de Google Analytics:"]
         result.append(",".join(headers))
         
         for row in rows:
@@ -394,9 +395,12 @@ async def register_tools(mcp: FastMCP):
                     "id": account.get("accountID", "N/A"),
                     "name": account.get("name", "Sin nombre")
                 })
-            elif "property_id" in account:
+            elif "propertyId" in account or "property_id" in account:
+                property_id = account.get("propertyId") or account.get("property_id", "N/A")
+                account_id = account.get("accountID") or account.get("account_id", "N/A")
                 accounts_by_medium["google_analytics"].append({
-                    "id": account.get("property_id", "N/A"),
+                    "id": account_id,
+                    "property_id": property_id,
                     "name": account.get("name", "Sin nombre"),
                     "credential_email": account.get("credentialEmail", "analytics@epa.digital")
                 })
@@ -430,7 +434,7 @@ async def register_tools(mcp: FastMCP):
         result.append("\n## Google Analytics")
         if accounts_by_medium["google_analytics"]:
             for i, account in enumerate(accounts_by_medium["google_analytics"], 1):
-                result.append(f"{i}. {account['name']} (ID: {account['id']}, Email: {account['credential_email']})")
+                result.append(f"{i}. {account['name']} (Account ID: {account['id']}, Property ID: {account['property_id']}, Email: {account['credential_email']})")
         else:
             result.append("*No se encontraron propiedades de Google Analytics*")
         

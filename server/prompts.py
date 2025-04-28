@@ -108,8 +108,9 @@ async def register_prompts(mcp: FastMCP):
             
             ## Pasos:
             1. Selecciona cuáles de las propiedades listadas deseas consultar (puedes indicar los números o nombres).
-            2. Define el rango de fechas para los datos (formato YYYY-MM-DD).
-            3. Opcionalmente, puedes especificar las dimensiones y métricas que deseas obtener.
+            2. Para cada propiedad, necesitaré tanto el Account ID como el Property ID.
+            3. Define el rango de fechas para los datos (formato YYYY-MM-DD).
+            4. Opcionalmente, puedes especificar las dimensiones y métricas que deseas obtener.
             
             ## Dimensiones comunes:
             - date (Fecha)
@@ -127,7 +128,7 @@ async def register_prompts(mcp: FastMCP):
             Una vez que tengas esta información, usaré la herramienta `get_google_analytics_data` para obtener los datos.
             """)
         ]
-
+    
     @mcp.prompt()
     def combined_data_extraction(customer_id: str, customer_name: str) -> list[base.Message]:
         """Guide the user to extract data from multiple platforms"""

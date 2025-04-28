@@ -151,8 +151,20 @@ async def get_google_analytics_report(
     filters: Optional[Dict[str, Any]] = None
 ) -> Dict[str, Any]:
     """Get Google Analytics report data"""
+    # Nos aseguramos que cada cuenta tenga los campos requeridos
+    formatted_accounts = []
+    for account in accounts:
+        required_fields = ["account_id", "property_id", "name", "credential_email"]
+        if all(field in account for field in required_fields):
+            formatted_accounts.append(account)
+        else:
+            logger.warning(f"Cuenta de Google Analytics con formato incorrecto, se omitirá: {account}")
+    
+    if not formatted_accounts:
+        raise ValueError("No se proporcionaron cuentas de Google Analytics con el formato correcto. Cada cuenta debe tener 'account_id', 'property_id', 'name' y 'credential_email'.")
+    
     payload = {
-        "accounts": accounts,
+        "accounts": formatted_accounts,
         "dimensions": dimensions,
         "metrics": metrics,
         "start_date": start_date,
@@ -168,14 +180,46 @@ async def get_google_analytics_report(
         headers = {}
         if AUTH_TOKEN:
             headers["Authorization"] = AUTH_TOKEN
-            
-        response = await client.post(
-            ENDPOINTS["google_analytics"],
-            json=payload,
-            headers=headers
-        )
-        response.raise_for_status()
+            logger.info(f"Using Authorization header: {AUTH_TOKEN[:5]}...")  # Log primeros 5 caracteres para debug
+        else:
+            logger.warning("No Authorization token found")
         
-        data = response.json()
-        logger.info(f"Received Google Analytics data with {len(data.get('rows', []))} rows")
-        return data
+        try:
+            logger.info(f"Sending request to: {ENDPOINTS['google_analytics']}")
+            response = await client.post(
+                ENDPOINTS["google_analytics"],
+                json=payload,
+                headers=headers,
+                timeout=30.0
+            )
+            
+            # Log de la respuesta para debug
+            logger.info(f"Response status code: {response.status_code}")
+            
+            # Intentar obtener el cuerpo de la respuesta incluso si el status code no es exitoso
+            try:
+                response_body = response.json()
+                logger.info(f"Response body preview: {str(response_body)[:500]}...")
+            except Exception as json_err:
+                logger.warning(f"Couldn't parse response as JSON: {str(json_err)}")
+                logger.info(f"Raw response: {response.text[:500]}...")
+            
+            response.raise_for_status()
+            
+            data = response.json()
+            logger.info(f"Received Google Analytics data with {len(data.get('rows', []))} rows")
+            return data
+            
+        except httpx.HTTPStatusError as e:
+            error_body = None
+            try:
+                error_body = e.response.json()
+            except:
+                error_body = e.response.text if e.response.text else "No response body"
+            
+            logger.error(f"HTTP error {e.response.status_code} from Google Analytics API: {error_body}")
+            raise Exception(f"Error HTTP {e.response.status_code} de la API de Google Analytics: {error_body}") from e
+            
+        except Exception as e:
+            logger.error(f"Unexpected error with Google Analytics API: {str(e)}", exc_info=True)
+            raise Exception(f"Error con la API de Google Analytics: {str(e)}") from e
