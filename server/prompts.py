@@ -37,7 +37,7 @@ async def register_prompts(mcp: FastMCP):
             ## Medios disponibles:
             1. **Google Ads** - Datos de campañas, costos, impresiones y clics
             2. **Facebook Ads** - Datos de campañas, gastos, impresiones y clics
-            3. **Google Analytics** - Datos de sesiones, transacciones e ingresos
+            3. **Google Analytics 4** - Datos de sesiones, transacciones e ingresos
             
             Primero, voy a obtener una lista de todas las cuentas disponibles para cada medio.
             Luego podrás seleccionar específicamente qué cuentas quieres consultar.
@@ -102,7 +102,7 @@ async def register_prompts(mcp: FastMCP):
         """Guide the user to extract Google Analytics data"""
         return [
             base.UserMessage(f"""
-            # Extracción de Datos de Google Analytics para {customer_name}
+            # Extracción de Datos de Google Analytics 4 para {customer_name}
             
             He obtenido las propiedades de Google Analytics disponibles para {customer_name}.
             
