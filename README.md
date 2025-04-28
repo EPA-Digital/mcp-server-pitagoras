@@ -25,24 +25,15 @@ Un servidor MCP (Model Context Protocol) para integrar datos de campañas de mar
    ```bash
    pip install -e .
    ```
-3. Crea un archivo `.env` en la raíz del proyecto con:
-   ```
-   AUTH_TOKEN=tu_token_de_pitagoras
-   ```
 
 ## Uso
 
 ### Iniciar el servidor MCP
 
 ```bash
-python -m src.main
+python -m main.py
 ```
 
-O usando la utilidad mcp:
-
-```bash
-mcp run src.main
-```
 
 ### Instalar en Claude Desktop
 
@@ -61,9 +52,23 @@ Una vez configurado el servidor MCP, puedes:
 5. Generar dashboards, gráficos, análisis y reportes
 
 ## Estructura del proyecto
-
-- `src/main.py`: Punto de entrada principal
-- `src/config/`: Configuración y variables de entorno
-- `src/api/`: Cliente HTTP y definiciones de API
-- `src/models/`: Esquemas de datos
-- `src/services/`: Servicios para acceder a diferentes plataformas
+```bash
+.
+├── CLAUDE.md
+├── README.md
+├── initial_prompt.md
+├── main.py
+├── pitagoras
+│   ├── __init__.py
+│   ├── api.py
+│   ├── config.py
+│   └── models.py
+├── pyproject.toml
+├── requirements.txt
+└── server
+    ├── __init__.py
+    ├── prompts.py
+    ├── resources.py
+    ├── tools.py
+    └── utils.py
+```
