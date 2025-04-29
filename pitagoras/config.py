@@ -6,7 +6,7 @@ from dotenv import load_dotenv
 load_dotenv()
 
 # Base configuration
-BASE_URL = "https://pitagoras-api-l6dmrzkz7a-uc.a.run.app/api/v1"
+BASE_URL = os.getenv("API_BASE_URL")
 AUTH_TOKEN = os.getenv("AUTH_TOKEN")
 DEFAULT_USER_EMAIL = os.getenv("DEFAULT_USER_EMAIL", "jcorona@epa.digital")
 
