@@ -96,7 +96,60 @@ El servidor Pitágoras necesita algunas bibliotecas de Python para funcionar. Va
    pip install -r requirements.txt
    ```
 
-## Paso 5: Encontrar la ruta a Python y al script principal
+## Paso 5: Configurar las variables de entorno
+
+Para proteger información sensible como tokens y credenciales, el servidor Pitágoras utiliza un archivo `.env` que debes crear:
+
+### Para usuarios de Mac:
+1. Abre Terminal
+2. Navega a la carpeta del servidor con el comando:
+   ```
+   cd ~/Documentos/mcp-server-pitagoras-main
+   ```
+3. Crea un archivo `.env` usando el editor de texto nano:
+   ```
+   nano .env
+   ```
+4. En el editor, agrega las siguientes líneas (reemplaza los valores con tus credenciales reales):
+   ```
+   # Credenciales generales
+   # Pitágoras API Token
+   AUTH_TOKEN=tu_token_aquí
+   
+   # API Base URL
+   API_BASE_URL=https://pitagoras-api-l6dmrzkz7a-uc.a.run.app/api/v1
+   
+   # Default user email
+   DEFAULT_USER_EMAIL=jcorona@epa.digital
+   ```
+5. Guarda el archivo presionando `Control + O`, luego `Enter`, y luego `Control + X` para salir
+
+### Para usuarios de Windows:
+1. Abre Bloc de notas u otro editor de texto
+2. Crea un nuevo archivo
+3. Agrega las siguientes líneas (reemplaza los valores con tus credenciales reales):
+   ```
+   # Credenciales generales
+   # Pitágoras API Token
+   AUTH_TOKEN=tu_token_aquí
+   
+   # API Base URL
+   API_BASE_URL=https://pitagoras-api-l6dmrzkz7a-uc.a.run.app/api/v1
+   
+   # Default user email
+   DEFAULT_USER_EMAIL=jcorona@epa.digital
+   ```
+4. Guarda el archivo con el nombre `.env` (incluyendo el punto al inicio) en la carpeta `mcp-server-pitagoras-main`
+   - Al guardar, selecciona "Todos los archivos" en el tipo de archivo para evitar que se guarde como ".env.txt"
+   - Asegúrate de que la ubicación sea la carpeta del proyecto
+
+### Notas importantes:
+- Si no tienes todas las credenciales en este momento, completa las que tengas y agrega las demás más tarde
+- Estas credenciales son altamente sensibles. No las compartas con nadie ni las incluyas en correos electrónicos o mensajes
+- El archivo `.env` está configurado para ser ignorado por los sistemas de control de versiones, por lo que no se subirá accidentalmente a repositorios públicos
+- Si necesitas obtener estas credenciales, consulta con tu administrador de cuentas publicitarias o con el soporte técnico correspondiente
+
+## Paso 6: Encontrar la ruta a Python y al script principal
 
 Necesitamos conocer la ruta exacta de Python y del script principal para la configuración:
 
@@ -122,7 +175,7 @@ Necesitamos conocer la ruta exacta de Python y del script principal para la conf
    (Asegúrate de estar en la carpeta del proyecto cuando ejecutes este comando)
 5. Copia esta ruta completa también
 
-## Paso 6: Configurar Claude Desktop
+## Paso 7: Configurar Claude Desktop
 
 Ahora configuraremos Claude Desktop para que use el servidor Pitágoras con Python:
 
@@ -138,7 +191,7 @@ Se abrirá un archivo de configuración. Reemplaza el contenido con lo siguiente
 {
     "mcpServers": {
         "pitagoras": {
-            "command": "/Library/Frameworks/Python.framework/Versions/3.13/bin/python3",
+            "command": "/Library/Frameworks/Python.framework/Versions/3.12/bin/python3",
             "args": [
                 "/Users/TuUsuario/Documentos/mcp-server-pitagoras-main/main.py"
             ]
@@ -147,35 +200,57 @@ Se abrirá un archivo de configuración. Reemplaza el contenido con lo siguiente
 }
 ```
 
-Remplaza las rutas de `command` y `args` con las de python y de la ubicación del script respectivamente.
+Reemplaza las rutas de `command` y `args` con las de python y de la ubicación del script respectivamente.
 
-## Paso 7: Guardar la configuración y reiniciar Claude
+## Paso 8: Guardar la configuración y reiniciar Claude
 
-Guarda el archivo de configuración:
+1. Guarda el archivo de configuración:
+   - En Windows: Ctrl + S
+   - En macOS: Command + S
+2. Cierra el archivo
+3. Cierra completamente Claude Desktop
+4. Vuelve a abrir Claude Desktop
 
-En Windows: Ctrl + S
-En macOS: Command + S
+## Paso 9: Verificar la instalación
 
-
-Cierra el archivo
-Cierra completamente Claude Desktop
-Vuelve a abrir Claude Desktop
-
-## Paso 8: Verificar la instalación
 Para comprobar que el servidor Pitágoras está correctamente instalado:
 
-Observa la parte inferior derecha del área de entrada de texto en Claude Desktop
-Deberías ver un icono de martillo 🔨
-Haz clic en el icono del martillo
-Verifica que aparecen las herramientas de Pitágoras en la lista
+1. Observa la parte inferior derecha del área de entrada de texto en Claude Desktop
+2. Deberías ver un icono de martillo 🔨 
+3. Haz clic en el icono del martillo
+4. Verifica que aparecen las herramientas de Pitágoras en la lista
 
 Si no ves el icono del martillo o las herramientas de Pitágoras, consulta la sección de solución de problemas.
 
-## Paso 9: Probar el servidor Pitágoras
+## Paso 10: Probar el servidor Pitágoras
+
 Ahora puedes probar el servidor Pitágoras haciendo preguntas relacionadas con marketing digital:
 
-- "¿Qué costo tuve en las campañas de  Google Ads para Innovasport en los últimos 7 días?"
+- "¿Qué costo tuve en las campañas de Google Ads para Innovasport en los últimos 7 días?"
 - "Muéstrame el rendimiento de mis campañas de Facebook Ads para Kipling de los últimos 14 días"
 - "Haz un gráfico de lineas del ROAS de los últimos 7 días para chedraui ecommerce"
 
 Claude utilizará las herramientas del servidor Pitágoras para ayudarte con tus consultas de marketing.
+
+## Solución de Problemas
+
+Si encuentras problemas durante la instalación:
+
+### El icono del martillo no aparece
+1. Asegúrate de haber reiniciado completamente Claude Desktop
+2. Verifica que el archivo de configuración se guardó correctamente
+3. Comprueba los registros (logs) de Claude Desktop:
+   - En macOS: `~/Library/Logs/Claude/mcp*.log`
+   - En Windows: `%APPDATA%\Claude\logs\mcp*.log`
+
+### Las herramientas no funcionan correctamente
+1. Verifica que Python está instalado correctamente
+2. Asegúrate de que el archivo `.env` está correctamente configurado
+3. Verifica que las rutas en el archivo de configuración son correctas
+4. Prueba ejecutar el script manualmente para ver si hay errores:
+   ```
+   python3 /ruta/a/tu/mcp-server-pitagoras-main/main.py
+   ```
+
+### Si necesitas más ayuda
+Si continúas teniendo problemas, contacta al equipo de soporte técnico de tu agencia o consulta los recursos de desarrollo del servidor Pitágoras.
