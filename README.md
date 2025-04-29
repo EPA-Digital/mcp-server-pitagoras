@@ -10,7 +10,7 @@ Un servidor MCP (Model Context Protocol) para integrar datos de campañas de mar
   - Google Analytics 4
 
 ## Instalación
-Sigue las instrucciones de las [guia de instalación]()
+Sigue las instrucciones de las [guía de instalación](https://github.com/EPA-Digital/mcp-server-pitagoras/blob/master/install_guide.md)
 
 ## Integración con Claude Desktop
 
