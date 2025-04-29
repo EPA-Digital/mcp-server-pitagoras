@@ -98,56 +98,29 @@ El servidor Pitágoras necesita algunas bibliotecas de Python para funcionar. Va
 
 ## Paso 5: Configurar las variables de entorno
 
-Para proteger información sensible como tokens y credenciales, el servidor Pitágoras utiliza un archivo `.env` que debes crear:
+Para proteger información sensible como tokens y credenciales, el servidor Pitágoras utiliza un archivo `.env` que debes modificar:
 
-### Para usuarios de Mac:
-1. Abre Terminal
-2. Navega a la carpeta del servidor con el comando:
-   ```
-   cd ~/Documentos/mcp-server-pitagoras-main
-   ```
-3. Crea un archivo `.env` usando el editor de texto nano:
-   ```
-   nano .env
-   ```
-4. En el editor, agrega las siguientes líneas (reemplaza los valores con tus credenciales reales):
+1. Abre el archivo `.env.example`
+2. Modifica las siguientes líneas (reemplaza los valores el token real y tu correo:
    ```
    # Credenciales generales
    # Pitágoras API Token
    AUTH_TOKEN=tu_token_aquí
    
-   # API Base URL
-   API_BASE_URL=https://pitagoras-api-l6dmrzkz7a-uc.a.run.app/api/v1
-   
    # Default user email
-   DEFAULT_USER_EMAIL=jcorona@epa.digital
+   DEFAULT_USER_EMAIL=tu_correo
    ```
-5. Guarda el archivo presionando `Control + O`, luego `Enter`, y luego `Control + X` para salir
+3. Guarda el archivo
 
-### Para usuarios de Windows:
-1. Abre Bloc de notas u otro editor de texto
-2. Crea un nuevo archivo
-3. Agrega las siguientes líneas (reemplaza los valores con tus credenciales reales):
-   ```
-   # Credenciales generales
-   # Pitágoras API Token
-   AUTH_TOKEN=tu_token_aquí
-   
-   # API Base URL
-   API_BASE_URL=https://pitagoras-api-l6dmrzkz7a-uc.a.run.app/api/v1
-   
-   # Default user email
-   DEFAULT_USER_EMAIL=jcorona@epa.digital
-   ```
-4. Guarda el archivo con el nombre `.env` (incluyendo el punto al inicio) en la carpeta `mcp-server-pitagoras-main`
+4. Cambia el nombre del archivo de `.env.example` a `.env` (incluyendo el punto al inicio) en la carpeta `mcp-server-pitagoras-main`
    - Al guardar, selecciona "Todos los archivos" en el tipo de archivo para evitar que se guarde como ".env.txt"
    - Asegúrate de que la ubicación sea la carpeta del proyecto
 
 ### Notas importantes:
-- Si no tienes todas las credenciales en este momento, completa las que tengas y agrega las demás más tarde
+- Solicita tus credenciales de Pitágoras al equipo de datos.
 - Estas credenciales son altamente sensibles. No las compartas con nadie ni las incluyas en correos electrónicos o mensajes
 - El archivo `.env` está configurado para ser ignorado por los sistemas de control de versiones, por lo que no se subirá accidentalmente a repositorios públicos
-- Si necesitas obtener estas credenciales, consulta con tu administrador de cuentas publicitarias o con el soporte técnico correspondiente
+
 
 ## Paso 6: Encontrar la ruta a Python y al script principal
 
