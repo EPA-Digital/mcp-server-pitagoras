@@ -8,38 +8,9 @@ Un servidor MCP (Model Context Protocol) para integrar datos de campañas de mar
   - Google Ads
   - Facebook Ads
   - Google Analytics 4
-- Herramientas para análisis de rendimiento de campañas:
-  - ROAS (Return on Ad Spend)
-  - CR (Conversion Rate)
-  - Tendencias por período (7, 14, 30 días)
-- Visualización de métricas clave:
-  - Costo, impresiones y clics por campaña
-  - Sesiones, transacciones y revenue
-  - Rendimiento por canal
-  - Rendimiento por hora del día
 
 ## Instalación
-
-1. Clona este repositorio
-2. Instala las dependencias:
-   ```bash
-   pip install -e .
-   ```
-
-## Uso
-
-### Iniciar el servidor MCP
-
-```bash
-python -m main.py
-```
-
-
-### Instalar en Claude Desktop
-
-```bash
-mcp install main
-```
+Sigue las instrucciones de las [guia de instalación]()
 
 ## Integración con Claude Desktop
 
@@ -72,3 +43,8 @@ Una vez configurado el servidor MCP, puedes:
     ├── tools.py
     └── utils.py
 ```
+
+## Todo
+- Crear prompts más elaborados por medio
+- Crear herramientas para los siguientes endpoint:
+  - https://pitagoras-api-l6dmrzkz7a-uc.a.run.app/api/v1/analytics4/metadata
