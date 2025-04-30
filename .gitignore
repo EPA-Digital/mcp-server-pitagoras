@@ -11,3 +11,4 @@ wheels/
 pitagoras-env/
 .env
 *.log
+.DS_Store
