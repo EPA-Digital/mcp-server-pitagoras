@@ -39,26 +39,48 @@ async def register_tools(mcp: FastMCP):
             
             # Añadir información sobre las cuentas
             accounts = customer.get("accounts", [])
-            if accounts:
+            filtered_accounts = {
+                "google ads": [],
+                "facebook ads": [],
+                "analytics4": []
+            }
+            
+            # Filtrar solo los proveedores requeridos
+            for account in accounts:
+                provider = account.get("provider", "").lower()
+                if provider in filtered_accounts:
+                    filtered_accounts[provider].append(account)
+            
+            if any(filtered_accounts.values()):
                 result.append("\n### Cuentas:")
                 
-                # Agrupar cuentas por proveedor
-                accounts_by_provider = {}
-                for account in accounts:
-                    provider = account.get("provider", "desconocido")
-                    if provider not in accounts_by_provider:
-                        accounts_by_provider[provider] = []
-                    accounts_by_provider[provider].append(account)
-                
-                # Mostrar cuentas agrupadas por proveedor
-                for provider, provider_accounts in accounts_by_provider.items():
-                    result.append(f"\n#### {provider.upper()}:")
-                    for account in provider_accounts:
+                # Mostrar cuentas de Google Ads
+                if filtered_accounts["google ads"]:
+                    result.append(f"\n#### GOOGLE ADS:")
+                    for account in filtered_accounts["google ads"]:
                         account_id = account.get("accountID", "N/A")
-                        account_name = account.get("name", "Sin nombre")
-                        result.append(f"- {account_name} (ID: {account_id})")
+                        account_name = account.get("name", "N/A")
+                        result.append(f"- ID: {account_id}, Name: {account_name}")
+                
+                # Mostrar cuentas de Facebook Ads
+                if filtered_accounts["facebook ads"]:
+                    result.append(f"\n#### FACEBOOK ADS:")
+                    for account in filtered_accounts["facebook ads"]:
+                        account_id = account.get("accountID", "N/A")
+                        account_name = account.get("name", "N/A")
+                        result.append(f"- ID: {account_id}, Name: {account_name}")
+                
+                # Mostrar cuentas de Analytics4
+                if filtered_accounts["analytics4"]:
+                    result.append(f"\n#### ANALYTICS4:")
+                    for account in filtered_accounts["analytics4"]:
+                        account_id = account.get("accountID", "N/A")
+                        account_name = account.get("name", "N/A")
+                        credential_email = account.get("credentialEmail", "N/A")
+                        property_id = account.get("propertyID", "N/A")
+                        result.append(f"- ID: {account_id}, Name: {account_name}, Email: {credential_email}, Property ID: {property_id}")
             else:
-                result.append("\n*Este cliente no tiene cuentas configuradas.*")
+                result.append("\n*Este cliente no tiene cuentas de Google Ads, Facebook Ads o Analytics4 configuradas.*")
             
             result.append("\n---")
         
