@@ -102,7 +102,7 @@ async def register_tools(mcp: FastMCP):
             account_ids: List of account IDs to fetch data from
             start_date: Start date in YYYY-MM-DD format
             end_date: End date in YYYY-MM-DD format
-            metrics: Optional list of metrics to fetch (defaults to cost, impressions, clicks)
+            metrics: Optional list of metrics to fetch (defaults to cost_micros, impressions, clicks)
         """
         # Obtener clientes y registrar para depuración
         customers = await get_customers()
