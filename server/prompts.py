@@ -100,6 +100,10 @@ async def register_prompts(mcp: FastMCP):
             Métricas: [lista separada por comas o "predeterminadas"]
             ```
             
+            ## Importante
+            - Si no encuentras información no continues reintenta extraer los datos pero en ningun caso aproximes la información.
+            - En caso de continuar con errores comunicalo a l usuario, pero no uses datos que no vengan de la API de Pitágoras.
+            
             Con esta información precisa, ejecutaré la herramienta `get_google_ads_data` para obtener los datos solicitados.
             """)
         ]
@@ -145,6 +149,9 @@ async def register_prompts(mcp: FastMCP):
             Fecha final: YYYY-MM-DD
             Campos: [lista separada por comas o "predeterminados"]
             ```
+            ## Importante
+            - Si no encuentras información no continues reintenta extraer los datos pero en ningun caso aproximes la información.
+            - En caso de continuar con errores comunicalo a l usuario, pero no uses datos que no vengan de la API de Pitágoras.
             
             Con esta información precisa, ejecutaré la herramienta `get_facebook_ads_data` para obtener los datos solicitados.
             """)
@@ -194,6 +201,10 @@ async def register_prompts(mcp: FastMCP):
             Métricas: [lista o "predeterminadas"]
             Filtro de campañas: [activado/desactivado]
             ```
+            
+            ## Importante
+            - Si no encuentras información no continues reintenta extraer los datos pero en ningun caso aproximes la información.
+            - En caso de continuar con errores comunicalo a l usuario, pero no uses datos que no vengan de la API de Pitágoras.
             
             Con esta información completa, ejecutaré la herramienta `get_google_analytics_data` para obtener los datos solicitados.
             """)
@@ -257,7 +268,11 @@ async def register_prompts(mcp: FastMCP):
             - "Descargar los datos en formato CSV"
             - "Finalizar la extracción"
             
+            
             ## Nota importante:
+            
+            - Si no encuentras información no continues reintenta extraer los datos pero en ningun caso aproximes la información.
+            - En caso de continuar con errores comunicalo a l usuario, pero no uses datos que no vengan de la API de Pitágoras.
             
             Ejecutando `list_accounts_by_medium` para obtener el inventario completo de cuentas para {customer_name}...
             """)
