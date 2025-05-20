@@ -15,8 +15,9 @@ logger = logging.getLogger("pitagoras-mcp")
 load_dotenv()
 
 # API configuration
-API_BASE_URL = "https://pitagoras-api-l6dmrzkz7a-uc.a.run.app/api/v1"
 AUTH_TOKEN = os.getenv("AUTH_TOKEN")
+API_BASE_URL = os.getenv("API_BASE_URL")
+
 
 if not AUTH_TOKEN:
     logger.warning("AUTH_TOKEN not found in environment variables")

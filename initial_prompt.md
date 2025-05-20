@@ -374,7 +374,7 @@ https://pitagoras-api-l6dmrzkz7a-uc.a.run.app/api/v1/analytics4/report
 }
 
 ### Google ads Metadata
-#### Endpoint: GEThttps://pitagoras-api-l6dmrzkz7a-uc.a.run.app/api/v1/adwords/metrics?resource_name=campaign
+#### Endpoint: GET https://pitagoras-api-l6dmrzkz7a-uc.a.run.app/api/v1/adwords/metrics?resource_name=campaign
 #### Response
 [
     "metrics.absolute_top_impression_percentage",
