@@ -3,6 +3,9 @@
 ## Instrucciones
 Escribe el código del MCP server, usa las mejores prácticas de programación en Python, separa los scripts en una estructura clara y conveniente para no tener todo en un solo script, el token de Pitágoras esta en un .env como AUTH_TOKEN. El flow para el cliente del MCP sera que primero que el usuario seleccione el cliente, luego los medios y por último las cuentas de las que requiere extraer los datos.
 - El token no debe contener bearer.
+- Permite al usuario listar las cuentas y luego seleccionarlas manualmente en lugar de extraer los datos de todas las cuentas por medio. Para esta tarea contempla las mejores prácticas de UX en un cliente de MCP.
+- Existe el medio analytics pero esta solo por compatibilidad, remuevelo de la respuesta al listar los medios, el que me interesa es el medio analytics4.
+- La métrica metrics.cost_micros para google ads ya trae los datos en las unidades monetarias y no requiere conversión. Esto puede ser confuso para el cliente entonces renombrala como cost.
 - Vamos a mantener la implementación muy simple, el objetivo es lograr obtener datos, posteriormente haremos transformaciones adicionales.
 - La mayor parte de la lógica de como solicitar datos a cada medio la vamos a meter en los prompts (Prompts are reusable templates that help LLMs interact with your server effectively) para dejar la lógica de extracción de datos muy simple.
 - Implementa las mejores prácticas de programación, evita usar for lops e implementa logs para saber como se construye la petición a Pitágoras y el resultado que regresa.
@@ -12,7 +15,7 @@ Trabajo en una agencia de marketing digital especializada en optimizar campañas
 Pitágoras que es un herramienta interna de extracción de datos de los medios (Google Ads, facebook Ads y Google Analytics) que permite acceder a los datos de las plataformas desde un sidebar en google sheets (Es similar a supermetrics) vamos a consumir su API para crear el MCP para que los usuarios puedan tener sus datos directo en Cloud Desktop. Esta API es muy flexible y nos deja acceder a los datos de las plataformas si tener que hacer transformación de los datos y no tenemos que lidiar con la autentificación.
 
 ## Pitágoras API endopoints
-Te comparto los endpoints, con los body y la respuestas de la API ayúdame con la implementación. (las respuestas están truncadas)
+Te comparto los endpoints, con los body y la respuestas de la API ayúdame con la implementación. (las respuestas están truncadas para evitar gastar tokens), todas las peticiones son tipo POST excepto por Facebook Ads Metadata y Google Ads Metadata que son GET.
 
 ### Clients
 
@@ -284,3 +287,67 @@ https://pitagoras-api-l6dmrzkz7a-uc.a.run.app/api/v1/analytics4/report
     ],
     "errors": []
 }
+
+### Google Analytics Metadata
+#### Endpoint: https://pitagoras-api-l6dmrzkz7a-uc.a.run.app/api/v1/analytics4/metadata
+#### Body 
+{
+    "property_id" : "0",
+    "credential_email" : "analytics@epa.digital"
+}
+#### Response:
+{
+    "dimensions": [
+        {
+            "value": "achievementId",
+            "label": "Achievement ID"
+        },
+        {
+            "value": "adFormat",
+            "label": "Ad format"
+        }
+    ],
+    "metrics": [
+        {
+            "value": "active1DayUsers",
+            "label": "1-day active users"
+        },
+        {
+            "value": "active28DayUsers",
+            "label": "28-day active users"
+        }
+    ]
+}
+### Facebook Ads Metadata
+#### Endpoint: GET https://pitagoras-api-l6dmrzkz7a-uc.a.run.app/api/v1/facebook/schema
+#### Response
+{
+    "fields": [
+        {
+            "name": "account_currency",
+            "type": "string"
+        },
+        {
+            "name": "account_id",
+            "type": "numeric string"
+        },
+        {
+            "name": "account_name",
+            "type": "string"
+        },
+        {
+            "name": "ad_click_mobile_app"
+        }
+    ]
+}
+
+### Google ads Metadata
+#### Endpoint: GEThttps://pitagoras-api-l6dmrzkz7a-uc.a.run.app/api/v1/adwords/metrics?resource_name=campaign
+#### Response
+[
+    "metrics.absolute_top_impression_percentage",
+    "metrics.clicks",
+    "metrics.conversions",
+    "metrics.cost_micros",
+    "metrics.impressions"
+]
