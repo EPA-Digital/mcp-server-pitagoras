@@ -1,7 +1,6 @@
 import logging
 import sys
-from datetime import datetime
-from typing import List, Dict, Any, Optional
+from typing import List, Dict, Optional
 
 from mcp.server.fastmcp import FastMCP
 from pitagoras.api import (
@@ -32,57 +31,45 @@ async def register_tools(mcp: FastMCP):
             return "No se encontraron clientes disponibles."
         
         result = ["# Clientes disponibles\n"]
+        result.append("| # | Nombre del cliente | ID | Status | Cuentas |") 
+        result.append("| --- | --- | --- | --- | --- |")
         
-        for customer in customers:
-            result.append(f"## {customer['name']} (ID: {customer['ID']})")
-            result.append(f"Status: {customer['status']}")
-            
-            # Añadir información sobre las cuentas
-            accounts = customer.get("accounts", [])
-            filtered_accounts = {
-                "google ads": [],
-                "facebook ads": [],
-                "analytics4": []
+        for i, customer in enumerate(customers, 1):
+            account_counts = {
+                "adwords": 0,
+                "facebook": 0,
+                "analytics4": 0
             }
             
-            # Filtrar solo los proveedores requeridos
-            for account in accounts:
+            # Contar cuentas por tipo
+            for account in customer.get("accounts", []):
                 provider = account.get("provider", "").lower()
-                if provider in filtered_accounts:
-                    filtered_accounts[provider].append(account)
+                if provider == "adwords" or provider == "google ads":
+                    account_counts["adwords"] += 1
+                elif provider == "facebook" or provider == "fb" or provider == "facebook ads":
+                    account_counts["facebook"] += 1
+                elif provider == "analytics4" or "property_id" in account or "propertyId" in account or "propertyID" in account:
+                    account_counts["analytics4"] += 1
             
-            if any(filtered_accounts.values()):
-                result.append("\n### Cuentas:")
-                
-                # Mostrar cuentas de Google Ads
-                if filtered_accounts["google ads"]:
-                    result.append(f"\n#### GOOGLE ADS:")
-                    for account in filtered_accounts["google ads"]:
-                        account_id = account.get("accountID", "N/A")
-                        account_name = account.get("name", "N/A")
-                        result.append(f"- ID: {account_id}, Name: {account_name}")
-                
-                # Mostrar cuentas de Facebook Ads
-                if filtered_accounts["facebook ads"]:
-                    result.append(f"\n#### FACEBOOK ADS:")
-                    for account in filtered_accounts["facebook ads"]:
-                        account_id = account.get("accountID", "N/A")
-                        account_name = account.get("name", "N/A")
-                        result.append(f"- ID: {account_id}, Name: {account_name}")
-                
-                # Mostrar cuentas de Analytics4
-                if filtered_accounts["analytics4"]:
-                    result.append(f"\n#### ANALYTICS4:")
-                    for account in filtered_accounts["analytics4"]:
-                        account_id = account.get("accountID", "N/A")
-                        account_name = account.get("name", "N/A")
-                        credential_email = account.get("credentialEmail", "N/A")
-                        property_id = account.get("propertyID", "N/A")
-                        result.append(f"- ID: {account_id}, Name: {account_name}, Email: {credential_email}, Property ID: {property_id}")
-            else:
-                result.append("\n*Este cliente no tiene cuentas de Google Ads, Facebook Ads o Analytics4 configuradas.*")
+            # Crear resumen de cuentas
+            account_summary = []
+            if account_counts["adwords"] > 0:
+                account_summary.append(f"Google Ads: {account_counts['adwords']}")
+            if account_counts["facebook"] > 0:
+                account_summary.append(f"Facebook: {account_counts['facebook']}")
+            if account_counts["analytics4"] > 0:
+                account_summary.append(f"GA4: {account_counts['analytics4']}")
             
-            result.append("\n---")
+            account_text = ", ".join(account_summary) if account_summary else "*Sin cuentas*"
+            
+            # Agregar fila a la tabla
+            result.append(f"| {i} | {customer['name']} | {customer['ID']} | {customer['status']} | {account_text} |")
+        
+        # Agregar instrucciones de uso
+        result.append("\n## Cómo seleccionar un cliente")
+        result.append("- Escriba el **número** del cliente: Ej. `2`")
+        result.append("- Use el **ID exacto**: Ej. `Selecciono el cliente RG-123456`")
+        result.append("- Use el **nombre completo**: Ej. `Selecciono el cliente Empresa ABC`")
         
         return "\n".join(result)
     
@@ -134,6 +121,10 @@ async def register_tools(mcp: FastMCP):
         if not all_adwords_accounts:
             return f"El cliente {customer_name} (ID: {customer_id}) no tiene cuentas de Google Ads configuradas."
         
+        # Manejar el caso de "all_google_ads" para seleccionar todas las cuentas
+        if len(account_ids) == 1 and account_ids[0].lower() == "all_google_ads":
+            account_ids = [account["id"] for account in all_adwords_accounts]
+        
         # Buscar las cuentas solicitadas
         matching_accounts = []
         
@@ -156,6 +147,15 @@ async def register_tools(mcp: FastMCP):
         # Configurar métricas predeterminadas si no se proporcionan
         if not metrics:
             metrics = ["metrics.cost_micros", "metrics.impressions", "metrics.clicks"]
+        else:
+            # Asegurar que todas las métricas tengan el prefijo 'metrics.' 
+            formatted_metrics = []
+            for metric in metrics:
+                if not metric.startswith("metrics."):
+                    formatted_metrics.append(f"metrics.{metric}")
+                else:
+                    formatted_metrics.append(metric)
+            metrics = formatted_metrics
         
         # Preparar parámetros de la solicitud
         report_params = {
@@ -197,11 +197,39 @@ async def register_tools(mcp: FastMCP):
         if not rows:
             return f"No se encontraron datos para las cuentas seleccionadas en el período {start_date} a {end_date}."
         
-        result = [f"Datos de Google Ads para {customer_name}:"]
-        result.append(",".join(headers))
+        account_names = [account["name"] for account in matching_accounts]
+        result = [f"# Datos de Google Ads ({start_date} a {end_date})"]
+        result.append(f"**Cliente:** {customer_name}")
+        result.append(f"**Cuentas incluidas:** {', '.join(account_names)}")
+        result.append("")
+        
+        # Crear tabla en formato markdown
+        result.append("| " + " | ".join(headers) + " |")
+        result.append("| " + " | ".join(["---" for _ in headers]) + " |")
         
         for row in rows:
-            result.append(",".join(str(cell) for cell in row))
+            # Formatear valores monetarios (convertir micros a unidades monetarias)
+            formatted_row = []
+            for i, cell in enumerate(row):
+                if headers[i] == "metrics.cost_micros":
+                    # Convertir micros (millonésimas) a unidades monetarias
+                    try:
+                        value = float(cell) / 1000000.0
+                        formatted_row.append(f"{value:.2f}")
+                    except (ValueError, TypeError):
+                        formatted_row.append(str(cell))
+                else:
+                    formatted_row.append(str(cell))
+            
+            result.append("| " + " | ".join(formatted_row) + " |")
+        
+        # Incluir resumen numérico
+        result.append("")
+        result.append(f"**Total de filas:** {len(rows)}")
+        
+        # Explicar formato de métricas
+        if "metrics.cost_micros" in metrics:
+            result.append("**Nota:** Los valores de costo se muestran en unidades monetarias (no en micros).")
         
         return "\n".join(result)
 
@@ -265,11 +293,23 @@ async def register_tools(mcp: FastMCP):
             return f"No se encontraron datos para las cuentas seleccionadas en el período {start_date} a {end_date}."
         
         account_names = [account["name"] for account in formatted_accounts]
-        result = [f"Datos de Facebook Ads para {', '.join(account_names)}:"]
-        result.append(",".join(headers))
+        result = [f"# Datos de Facebook Ads ({start_date} a {end_date})"]
+        result.append(f"**Cuentas incluidas:** {', '.join(account_names)}")
+        result.append("")
+        
+        # Crear tabla en formato markdown
+        result.append("| " + " | ".join(headers) + " |")
+        result.append("| " + " | ".join(["---" for _ in headers]) + " |")
         
         for row in rows:
-            result.append(",".join(str(cell) for cell in row))
+            result.append("| " + " | ".join(str(cell) for cell in row) + " |")
+        
+        # Incluir resumen numérico
+        result.append("")
+        result.append(f"**Total de filas:** {len(rows)}")
+        
+        # Incluir campos consultados
+        result.append(f"**Campos consultados:** {', '.join(fields)}")
         
         return "\n".join(result)
     
@@ -367,11 +407,20 @@ async def register_tools(mcp: FastMCP):
         if not rows:
             return f"No se encontraron datos para las propiedades seleccionadas en el período {start_date} a {end_date}."
         
-        result = ["Datos de Google Analytics:"]
-        result.append(",".join(headers))
+        result = [f"# Datos de Google Analytics ({start_date} a {end_date})"]
+        result.append("")
+        
+        # Crear tabla en formato markdown
+        result.append("| " + " | ".join(headers) + " |")
+        result.append("| " + " | ".join(["---" for _ in headers]) + " |")
         
         for row in rows:
-            result.append(",".join(str(cell) for cell in row))
+            result.append("| " + " | ".join(str(cell) for cell in row) + " |")
+        
+        # Incluir resumen numérico
+        result.append("")
+        result.append(f"**Total de filas:** {len(rows)}")
+        result.append(f"**Propiedades incluidas:** {', '.join(account_names)}")
         
         return "\n".join(result)
 
@@ -417,8 +466,8 @@ async def register_tools(mcp: FastMCP):
                     "id": account.get("accountID", "N/A"),
                     "name": account.get("name", "Sin nombre")
                 })
-            elif "propertyId" in account or "property_id" in account:
-                property_id = account.get("propertyId") or account.get("property_id", "N/A")
+            elif "propertyId" in account or "property_id" in account or account.get("provider", "").lower() == "analytics4":
+                property_id = account.get("propertyId") or account.get("property_id") or account.get("propertyID", "N/A")
                 account_id = account.get("accountID") or account.get("account_id", "N/A")
                 accounts_by_medium["google_analytics"].append({
                     "id": account_id,
@@ -436,34 +485,65 @@ async def register_tools(mcp: FastMCP):
         # Formatear la respuesta
         result = [f"# Cuentas disponibles para {customer_name} (ID: {customer_id})\n"]
         
+        # Mostrar resumen de cuentas disponibles primero
+        available_media = []
+        if accounts_by_medium["google_ads"]:
+            available_media.append(f"Google Ads ({len(accounts_by_medium['google_ads'])})")
+        if accounts_by_medium["facebook_ads"]:
+            available_media.append(f"Facebook Ads ({len(accounts_by_medium['facebook_ads'])})")
+        if accounts_by_medium["google_analytics"]:
+            available_media.append(f"Google Analytics ({len(accounts_by_medium['google_analytics'])})")
+        
+        if available_media:
+            result.append(f"**Plataformas disponibles:** {', '.join(available_media)}\n")
+        else:
+            result.append("**No hay cuentas de plataformas publicitarias configuradas para este cliente**\n")
+        
         # Google Ads
         result.append("## Google Ads")
         if accounts_by_medium["google_ads"]:
+            result.append("| # | Nombre | ID | Login Customer ID |")
+            result.append("| --- | --- | --- | --- |")
             for i, account in enumerate(accounts_by_medium["google_ads"], 1):
-                result.append(f"{i}. {account['name']} (ID: {account['id']}, Login Customer ID: {account['login_customer_id']})")
+                result.append(f"| {i} | {account['name']} | {account['id']} | {account['login_customer_id']} |")
+            result.append("\n**Para seleccionar todas las cuentas de Google Ads use:** `all_google_ads`")
         else:
             result.append("*No se encontraron cuentas de Google Ads*")
         
         # Facebook Ads
         result.append("\n## Facebook Ads")
         if accounts_by_medium["facebook_ads"]:
+            result.append("| # | Nombre | ID |")
+            result.append("| --- | --- | --- |")
             for i, account in enumerate(accounts_by_medium["facebook_ads"], 1):
-                result.append(f"{i}. {account['name']} (ID: {account['id']})")
+                result.append(f"| {i} | {account['name']} | {account['id']} |")
+            result.append("\n**Para seleccionar todas las cuentas de Facebook Ads use:** `all_facebook_ads`")
         else:
             result.append("*No se encontraron cuentas de Facebook Ads*")
         
         # Google Analytics
         result.append("\n## Google Analytics")
         if accounts_by_medium["google_analytics"]:
+            result.append("| # | Nombre | Property ID | Account ID | Email |")
+            result.append("| --- | --- | --- | --- | --- |")
             for i, account in enumerate(accounts_by_medium["google_analytics"], 1):
-                result.append(f"{i}. {account['name']} (Account ID: {account['id']}, Property ID: {account['property_id']}, Email: {account['credential_email']})")
+                result.append(f"| {i} | {account['name']} | {account['property_id']} | {account['id']} | {account['credential_email']} |")
+            result.append("\n**Para seleccionar todas las propiedades de Google Analytics use:** `all_google_analytics`")
         else:
             result.append("*No se encontraron propiedades de Google Analytics*")
         
         # Otras cuentas
         if accounts_by_medium["other"]:
             result.append("\n## Otras cuentas")
+            result.append("| # | Nombre | ID | Proveedor |")
+            result.append("| --- | --- | --- | --- |")
             for i, account in enumerate(accounts_by_medium["other"], 1):
-                result.append(f"{i}. {account['name']} (ID: {account['id']}, Proveedor: {account['provider']})")
+                result.append(f"| {i} | {account['name']} | {account['id']} | {account['provider']} |")
+        
+        # Agregar ayuda para comandos rápidos
+        result.append("\n## Comandos rápidos")
+        result.append("- `all`: Seleccionar todas las cuentas disponibles")
+        result.append("- `[número]`: Seleccionar por número de la tabla (ej: `1,3,5`)")
+        result.append("- `id:[ID]`: Seleccionar por ID específico (ej: `id:123456789,id:987654321`)")
         
         return "\n".join(result)
