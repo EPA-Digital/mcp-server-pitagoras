@@ -43,7 +43,7 @@ async def register_prompts(mcp: FastMCP):
             ## Plataformas disponibles:
             1. **Google Ads** - Datos de campañas de búsqueda, display y video
             2. **Facebook Ads** - Datos de campañas en Facebook e Instagram
-            3. **Google Analytics 4** - Métricas de rendimiento del sitio web y conversiones
+            3. **Google Analytics 4** - Métricas de rendimiento del sitio web y resultados
             
             ## Instrucciones específicas:
             1. Estoy obteniendo la lista completa de cuentas por cada plataforma
@@ -85,10 +85,6 @@ async def register_prompts(mcp: FastMCP):
             - metrics.cost_micros → Costo
             - metrics.impressions → Número total de impresiones
             - metrics.clicks → Número total de clics
-            - metrics.conversions → Número de conversiones
-            - metrics.conversions_value → Valor monetario de conversiones
-            - metrics.ctr → Tasa de clics (Click-Through Rate)
-            - metrics.average_cpc → Costo promedio por clic
             
             ## Formato de respuesta requerido:
             ```
@@ -135,10 +131,6 @@ async def register_prompts(mcp: FastMCP):
             - spend → Gasto total en moneda de la cuenta
             - impressions → Número total de impresiones
             - clicks → Número total de clics
-            - ctr → Tasa de clics (Click-Through Rate)
-            - cpc → Costo por clic
-            - actions → Desglose de acciones por tipo
-            - conversions → Número de conversiones por objetivo
             
             ## Formato de respuesta requerido:
             ```
@@ -186,7 +178,6 @@ async def register_prompts(mcp: FastMCP):
             2. **Métricas** (opcional):
             - Usa "predeterminadas" o especifica una lista separada por comas
             - Predeterminadas: sessions, transactions, totalRevenue
-            - Otras opciones: activeUsers, conversions, engagementRate, etc.
             
             3. **Filtro de campañas** (opcional):
             - Usa "activado" (predeterminado) o "desactivado"  
