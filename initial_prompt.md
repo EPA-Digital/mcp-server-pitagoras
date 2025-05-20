@@ -1,18 +1,50 @@
-# Pitagoras MCP server
+Necesito crear un MCP server que combine la extracción de datos desde Pitágoras con capacidades de análisis de datos en python. El objetivo es permitir a los usuarios extraer datos de marketing digital y analizarlos directamente en Claude Desktop, ejecutando scripts de Python reales en el servidor en lugar de generarlos en JavaScript.
 
-## Instrucciones
-Escribe el código del MCP server, usa las mejores prácticas de programación en Python, separa los scripts en una estructura clara y conveniente para no tener todo en un solo script, el token de Pitágoras esta en un .env como AUTH_TOKEN. El flow para el cliente del MCP sera que primero que el usuario seleccione el cliente, luego los medios y por último las cuentas de las que requiere extraer los datos.
-- El token no debe contener bearer.
-- Permite al usuario listar las cuentas y luego seleccionarlas manualmente en lugar de extraer los datos de todas las cuentas por medio. Para esta tarea contempla las mejores prácticas de UX en un cliente de MCP.
-- Existe el medio analytics pero esta solo por compatibilidad, remuevelo de la respuesta al listar los medios, el que me interesa es el medio analytics4.
-- La métrica metrics.cost_micros para google ads ya trae los datos en las unidades monetarias y no requiere conversión. Esto puede ser confuso para el cliente entonces renombrala como cost.
-- Vamos a mantener la implementación muy simple, el objetivo es lograr obtener datos, posteriormente haremos transformaciones adicionales.
-- La mayor parte de la lógica de como solicitar datos a cada medio la vamos a meter en los prompts (Prompts are reusable templates that help LLMs interact with your server effectively) para dejar la lógica de extracción de datos muy simple.
-- Implementa las mejores prácticas de programación, evita usar for lops e implementa logs para saber como se construye la petición a Pitágoras y el resultado que regresa.
+## Instrucciones Técnicas
+Escribe el código del MCP server en Python, siguiendo estas directrices:
 
-## Contexto
-Trabajo en una agencia de marketing digital especializada en optimizar campañas de paid media.
-Pitágoras que es un herramienta interna de extracción de datos de los medios (Google Ads, facebook Ads y Google Analytics) que permite acceder a los datos de las plataformas desde un sidebar en google sheets (Es similar a supermetrics) vamos a consumir su API para crear el MCP para que los usuarios puedan tener sus datos directo en Cloud Desktop. Esta API es muy flexible y nos deja acceder a los datos de las plataformas si tener que hacer transformación de los datos y no tenemos que lidiar con la autentificación.
+1) ESTRUCTURA DEL CÓDIGO:
+   - Separa los scripts en una estructura modular y clara
+   - Implementa un sistema similar al ScriptRunner del Data Exploration Server para ejecutar código Python
+   - Utiliza herramientas como pandas, numpy, scipy y sklearn para análisis de datos
+   - Almacena las credenciales en un archivo .env con AUTH_TOKEN (sin el prefijo bearer)
+
+2) HERRAMIENTAS CLAVE A IMPLEMENTAR:
+   - extract_from_pitagoras: Extracción de datos de las plataformas (Google Ads, Facebook Ads, Google Analytics4)
+   - run_script: Similar al Data Exploration Server, para análisis de datos en Python
+   - Herramientas adicionales para visualización y análisis específicos de marketing
+
+3) FLUJO DE USUARIO PARA EXTRACCIÓN DE DATOS:
+   - Paso 1: Selección del cliente desde una lista
+   - Paso 2: Selección del medio publicitario
+   - Paso 3: Selección de cuentas específicas (no extraer automáticamente todas)
+   - Paso 4: Definición de métricas, dimensiones y fechas
+
+4) OPTIMIZACIONES ESENCIALES:
+   - Renombrar metrics.cost_micros como cost en Google Ads para mayor claridad
+   - Implementar sistema de caché para evitar extracciones repetidas de los mismos datos
+   - Permitir almacenar DataFrames en memoria para análisis posterior
+   - IMPORTANTE: Todos los análisis y visualizaciones deben ejecutarse como código Python en el servidor, NO como JavaScript en el cliente
+   - Utilizar logging para rastrear construcción de peticiones y respuestas
+
+5) PROMPTS ESPECIALIZADOS PARA ANÁLISIS:
+   - Prompt para análisis exploratorio básico de datos de marketing
+   - Prompt para comparación de rendimiento entre plataformas 
+   - Prompt para recomendaciones de optimización de campañas
+   - Garantizar que los prompts usen el sistema run_script para ejecutar el análisis en Python, no en JavaScript
+   
+6) CONSIDERACIONES DE SEGURIDAD Y RENDIMIENTO:
+   - Validar todas las entradas del usuario
+   - Implementar manejo de errores para todas las llamadas API
+   - Limitar el tamaño de las respuestas para prevenir problemas de rendimiento
+   - Evitar usar bucles for cuando sea posible para optimizar rendimiento
+
+## Contexto Adicional
+Se trata de combinar dos sistemas principales:
+
+1. Extracción de Datos (Pitágoras API): Para acceder a datos de Google Ads, Facebook Ads y Google Analytics4
+2. Motor de Análisis (Similar al Data Exploration Server): Para procesar y analizar estos datos mediante Python
+
 
 ## Pitágoras API endopoints
 Te comparto los endpoints, con los body y la respuestas de la API ayúdame con la implementación. (las respuestas están truncadas para evitar gastar tokens), todas las peticiones son tipo POST excepto por Facebook Ads Metadata y Google Ads Metadata que son GET.
@@ -37,7 +69,7 @@ https://pitagoras-api-l6dmrzkz7a-uc.a.run.app/api/v1/customers
             "accounts": [
                 {
                     "accountID": "1019423192",
-                    "businessUnit": "Coppel Ecommerce",
+                    "businessUnit": "Coppel Ecommerce",****
                     "clientName": "Coppel Ecommerce",
                     "credentialEmail": "analytics@epa.digital",
                     "currency": "MXN",
