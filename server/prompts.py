@@ -46,7 +46,7 @@ async def register_prompts(mcp: FastMCP):
             3. **Google Analytics 4** - Métricas de rendimiento del sitio web y conversiones
             
             ## Instrucciones específicas:
-            1. Estoy obteniendo la lista completa de cuentas por cada plataforma mediante `list_accounts_by_medium`
+            1. Estoy obteniendo la lista completa de cuentas por cada plataforma
             2. Indica claramente qué plataforma(s) deseas consultar (puedes seleccionar más de una)
             3. Si quieres analizar TODAS las plataformas, escribe "Todas las plataformas"
             
@@ -54,8 +54,6 @@ async def register_prompts(mcp: FastMCP):
             - "Quiero analizar Google Ads"
             - "Selecciono Facebook Ads y Google Analytics"
             - "Todas las plataformas"
-            
-            Si alguna plataforma no tiene cuentas configuradas, te lo notificaré antes de continuar.
             
             Ejecutando la herramienta `list_accounts_by_medium` para el cliente {customer_id}...
             """)
@@ -167,34 +165,39 @@ async def register_prompts(mcp: FastMCP):
             He obtenido las propiedades específicas de Google Analytics 4 disponibles para {customer_name} (ID: {customer_id}).
             
             ## Parámetros requeridos:
-            1. **Propiedades** - Especifica TANTO los Property IDs como Account IDs:
-            - Property IDs: Lista de IDs numéricos (Ej: "123456789, 987654321")
-            - Account IDs: Lista de IDs correspondientes (Ej: "112233, 445566")
-            - Account Names: Nombres exactos de las cuentas (Ej: "Web Principal, Web Secundaria")
+            1. **Propiedades** - Especifica las propiedades a consultar:
+            - Si quieres usar todas las propiedades disponibles, escribe: `all_google_analytics`
+            - O especifica los IDs exactos (debes incluir los tres elementos):
+              - Property IDs: Lista de IDs numéricos (Ej: "123456789, 987654321")
+              - Account IDs: Lista de IDs correspondientes (Ej: "112233, 445566")
+              - Account Names: Nombres exactos de las cuentas (Ej: "Web Principal, Web Secundaria")
             
             2. **Rango de fechas** - Define el período exacto a analizar:
             - Fecha inicial: YYYY-MM-DD (Ej: 2025-01-01)
             - Fecha final: YYYY-MM-DD (Ej: 2025-04-30)
-            - Períodos predefinidos: "Último mes", "Último trimestre", "Año actual"
+            - O usa períodos predefinidos: "Último mes", "Último trimestre", "Año actual"
             
             ## Parámetros opcionales:
             1. **Dimensiones** (opcional):
-            - Por defecto: date, sessionCampaignName, sessionSourceMedium
+            - Usa "predeterminadas" o especifica una lista separada por comas
+            - Predeterminadas: date, sessionCampaignName, sessionSourceMedium
             - Otras opciones: city, country, deviceCategory, landingPage, etc.
             
             2. **Métricas** (opcional):
-            - Por defecto: sessions, transactions, totalRevenue
+            - Usa "predeterminadas" o especifica una lista separada por comas
+            - Predeterminadas: sessions, transactions, totalRevenue
             - Otras opciones: activeUsers, conversions, engagementRate, etc.
             
             3. **Filtro de campañas** (opcional):
-            - Por defecto: Activado (solo muestra campañas que empiezan con 'aw_' o 'fb_')
-            - Para desactivar: Indicar explícitamente "Filtro de campañas: desactivado"
+            - Usa "activado" (predeterminado) o "desactivado"  
+            - Cuando está activado, solo muestra campañas que empiezan con 'aw_' o 'fb_'
             
             ## Formato de respuesta requerido:
             ```
-            Property IDs: [lista separada por comas]
-            Account IDs: [lista separada por comas]
-            Account Names: [lista separada por comas]
+            Propiedades: [all_google_analytics o IDs específicos]
+            Property IDs: [lista separada por comas o deja en blanco si usas all_google_analytics]
+            Account IDs: [lista separada por comas o deja en blanco si usas all_google_analytics]
+            Account Names: [lista separada por comas o deja en blanco si usas all_google_analytics]
             Fecha inicial: YYYY-MM-DD
             Fecha final: YYYY-MM-DD
             Dimensiones: [lista o "predeterminadas"]
