@@ -1,50 +1,41 @@
-Necesito crear un MCP server que combine la extracción de datos desde Pitágoras con capacidades de análisis de datos en python. El objetivo es permitir a los usuarios extraer datos de marketing digital y analizarlos directamente en Claude Desktop, ejecutando scripts de Python reales en el servidor en lugar de generarlos en JavaScript.
+Necesito crear un MCP server que combine la extracción de datos desde Pitágoras con capacidades de análisis de datos en python. El objetivo es permitir a los usuarios extraer datos de marketing digital y analizarlos directamente en Claude Desktop, ejecutando scripts de Python.
 
 ## Instrucciones Técnicas
 Escribe el código del MCP server en Python, siguiendo estas directrices:
 
 1) ESTRUCTURA DEL CÓDIGO:
    - Separa los scripts en una estructura modular y clara
-   - Implementa un sistema similar al ScriptRunner del Data Exploration Server para ejecutar código Python
    - Utiliza herramientas como pandas, numpy, scipy y sklearn para análisis de datos
    - Almacena las credenciales en un archivo .env con AUTH_TOKEN (sin el prefijo bearer)
 
-2) HERRAMIENTAS CLAVE A IMPLEMENTAR:
-   - extract_from_pitagoras: Extracción de datos de las plataformas (Google Ads, Facebook Ads, Google Analytics4)
-   - run_script: Similar al Data Exploration Server, para análisis de datos en Python
-   - Herramientas adicionales para visualización y análisis específicos de marketing
+2) HERRAMIENTAS:
+   - extract_clients_data: Extraer los clientes disponibles para un correo electrónico.
+   - mediums_and_accounts_selector: Herramienta para seleccionar los medios y cuentas de los que se va a extraer datos
+   - extract_google_ads_data: Extracción de datos de Google Ads
+   - extract_facebook_ads_data: Extracción de datos de Facebook Ads
+   - extract_google_analytics_data: Extracción de datos de Google Analytics4
+   - get_google_ads_metadata: Extracción los campos disponibles para google ads
+   - get_facebook_ads_metadata: Extracción los campos disponibles para facebook ads
+   - get_google_analytics_metadata: Extracción los campos disponibles para google analytics
+   - run_script: Ejecuta scripts, para análisis de datos en Python
 
-3) FLUJO DE USUARIO PARA EXTRACCIÓN DE DATOS:
+3) PROMPTS:
+   - Prompt para análisis exploratorio básico de datos de marketing
+   - Prompt para comparación de rendimiento entre plataformas 
+   - Prompt para recomendaciones de optimización de campañas
+   - Garantizar que los prompts usen el sistema run_script para ejecutar el análisis en Python
+
+4) FLUJO DE USUARIO PARA EXTRACCIÓN DE DATOS:
    - Paso 1: Selección del cliente desde una lista
    - Paso 2: Selección del medio publicitario
    - Paso 3: Selección de cuentas específicas (no extraer automáticamente todas)
    - Paso 4: Definición de métricas, dimensiones y fechas
 
-4) OPTIMIZACIONES ESENCIALES:
-   - Renombrar metrics.cost_micros como cost en Google Ads para mayor claridad
-   - Implementar sistema de caché para evitar extracciones repetidas de los mismos datos
-   - Permitir almacenar DataFrames en memoria para análisis posterior
-   - IMPORTANTE: Todos los análisis y visualizaciones deben ejecutarse como código Python en el servidor, NO como JavaScript en el cliente
-   - Utilizar logging para rastrear construcción de peticiones y respuestas
-
-5) PROMPTS ESPECIALIZADOS PARA ANÁLISIS:
-   - Prompt para análisis exploratorio básico de datos de marketing
-   - Prompt para comparación de rendimiento entre plataformas 
-   - Prompt para recomendaciones de optimización de campañas
-   - Garantizar que los prompts usen el sistema run_script para ejecutar el análisis en Python, no en JavaScript
    
-6) CONSIDERACIONES DE SEGURIDAD Y RENDIMIENTO:
+5) CONSIDERACIONES DE SEGURIDAD Y RENDIMIENTO:
    - Validar todas las entradas del usuario
    - Implementar manejo de errores para todas las llamadas API
-   - Limitar el tamaño de las respuestas para prevenir problemas de rendimiento
    - Evitar usar bucles for cuando sea posible para optimizar rendimiento
-
-## Contexto Adicional
-Se trata de combinar dos sistemas principales:
-
-1. Extracción de Datos (Pitágoras API): Para acceder a datos de Google Ads, Facebook Ads y Google Analytics4
-2. Motor de Análisis (Similar al Data Exploration Server): Para procesar y analizar estos datos mediante Python
-
 
 ## Pitágoras API endopoints
 Te comparto los endpoints, con los body y la respuestas de la API ayúdame con la implementación. (las respuestas están truncadas para evitar gastar tokens), todas las peticiones son tipo POST excepto por Facebook Ads Metadata y Google Ads Metadata que son GET.

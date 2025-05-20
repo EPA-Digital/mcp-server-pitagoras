@@ -1,62 +1,156 @@
-# Pitágoras MCP Server
+# MCP Pitagoras Analytics Server
 
-Un servidor MCP (Model Context Protocol) para integrar datos de campañas de marketing digital desde Pitágoras API, permitiendo análisis interactivos a través de interfaces como Claude Desktop.
+Servidor MCP que combina la extracción de datos desde Pitágoras con capacidades de análisis de datos en Python. Permite a los usuarios extraer datos de marketing digital y analizarlos directamente en Claude Desktop.
 
-## Características
+## Requisitos
 
-- Conexión a la API de Pitágoras para obtener datos de:
-  - Google Ads
-  - Facebook Ads
-  - Google Analytics 4
+- Python 3.9 o superior
+- Token de autenticación para la API de Pitágoras
 
 ## Instalación
 
-Sigue las instrucciones de la [guía de instalación](https://github.com/EPA-Digital/mcp-server-pitagoras/blob/master/install_guide.md)
-
-## Integración con Claude Desktop
-
-Una vez configurado el servidor MCP, puedes:
-
-1. Conectarte a través de Claude Desktop
-2. Seleccionar un cliente
-3. Elegir las cuentas y medios para análisis
-4. Realizar consultas sobre rendimiento de campañas
-5. Generar dashboards, gráficos, análisis y reportes
-
-## Estructura del proyecto
+### Con pip
 
 ```bash
-.
-├── CLAUDE.md
-├── README.md
-├── initial_prompt.md
-├── main.py
-├── pitagoras
-│   ├── __init__.py
-│   ├── api.py
-│   ├── config.py
-│   └── models.py
-├── pyproject.toml
-├── requirements.txt
-└── server
-    ├── __init__.py
-    ├── prompts.py
-    ├── resources.py
-    ├── tools.py
-    └── utils.py
+pip install git+https://github.com/tu-usuario/mcp-pitagoras.git
 ```
 
-## Changelog
+### Desde el código fuente
 
-### v0.2.1
-- Corrección: Solucionado error que impedía realizar consultas a Google Analytics 4
+1. Clona el repositorio:
 
-### v0.2.0
-- Agregada integración con Google Analytics 4
-- Mejoras en la estructura del proyecto
-- Actualización de dependencias
+```bash
+git clone https://github.com/tu-usuario/mcp-pitagoras.git
+cd mcp-pitagoras
+```
 
-### v0.1.0
-- Versión inicial
-- Soporte para Google Ads y Facebook Ads
-- Implementación del protocolo MCP básico
+2. Instala las dependencias:
+
+```bash
+pip install -e .
+```
+
+## Configuración
+
+Crea un archivo `.env` en la raíz del proyecto con las siguientes variables:
+
+```
+AUTH_TOKEN=tu_token_de_autenticacion_para_pitagoras
+```
+
+## Uso
+
+### Con Claude Desktop
+
+1. Abre Claude Desktop.
+
+2. Edita el archivo de configuración de Claude Desktop ubicado en:
+   - macOS: `~/Library/Application Support/Claude/claude_desktop_config.json`
+   - Windows: `%APPDATA%\Claude\claude_desktop_config.json`
+
+3. Añade el servidor MCP Pitágoras:
+
+```json
+{
+  "mcpServers": {
+    "pitagoras-analytics": {
+      "command": "mcp-pitagoras",
+      "env": {
+        "AUTH_TOKEN": "tu_token_de_autenticacion_para_pitagoras"
+      }
+    }
+  }
+}
+```
+
+4. Reinicia Claude Desktop.
+
+### Desde la línea de comandos
+
+Para ejecutar el servidor directamente desde la línea de comandos:
+
+```bash
+mcp-pitagoras
+```
+
+## Herramientas disponibles
+
+### Herramientas de cliente
+
+- `extract_clients_data`: Extrae los clientes disponibles para un correo electrónico.
+- `mediums_and_accounts_selector`: Selecciona los medios y cuentas de los que se va a extraer datos.
+
+### Herramientas de extracción
+
+- `extract_from_pitagoras`: Extracción unificada de datos de Google Ads, Facebook Ads y Google Analytics.
+- `get_google_ads_metadata`: Obtiene campos disponibles para Google Ads.
+- `get_facebook_ads_metadata`: Obtiene campos disponibles para Facebook Ads.
+- `get_google_analytics_metadata`: Obtiene campos disponibles para Google Analytics.
+
+### Herramientas de análisis
+
+- `run_script`: Ejecuta scripts para análisis de datos en Python.
+- `list_dataframes`: Lista los DataFrames disponibles en memoria.
+
+## Prompts disponibles
+
+- `analisis_exploratorio`: Prompt para análisis exploratorio básico de datos de marketing.
+- `comparacion_rendimiento`: Prompt para comparación de rendimiento entre plataformas.
+- `recomendaciones_optimizacion`: Prompt para recomendaciones de optimización de campañas.
+
+## Flujo de uso típico
+
+1. Extraer clientes disponibles con `extract_clients_data`.
+2. Seleccionar cliente, medio y cuentas con `mediums_and_accounts_selector`.
+3. Obtener metadatos (campos disponibles) con las herramientas de metadatos.
+4. Extraer datos con `extract_from_pitagoras`.
+5. Listar DataFrames disponibles con `list_dataframes`.
+6. Analizar datos utilizando `run_script`.
+7. Usar prompts para análisis específicos según necesidad.
+
+## Ejemplos
+
+### Extracción de clientes
+
+```
+¿Puedes extraer los clientes disponibles para mi correo jcorona@epa.digital?
+```
+
+### Selección de plataforma y cuentas
+
+```
+Selecciona el cliente con ID "0MzvbWaTrW7gedBvdwOD", la plataforma Google Ads y las cuentas con IDs "1019423192" y "2535179120"
+```
+
+### Extracción de datos
+
+```
+Extrae datos de Google Ads para las siguientes métricas: "metrics.impressions", "metrics.clicks", "metrics.cost_micros" del 2025-01-01 al 2025-01-31.
+```
+
+### Análisis de datos
+
+```
+Ejecuta un análisis exploratorio de los datos de Google Ads extraídos, mostrando las principales estadísticas y tendencias.
+```
+
+## Seguridad
+
+- El servidor valida todas las entradas del usuario.
+- Implementa manejo de errores para todas las llamadas a la API.
+- Las credenciales se guardan de forma segura en variables de entorno.
+- La ejecución de scripts está limitada al entorno del servidor.
+
+## Contribuciones
+
+Las contribuciones son bienvenidas. Por favor, sigue estos pasos:
+
+1. Haz fork del repositorio
+2. Crea una rama para tu característica (`git checkout -b feature/amazing-feature`)
+3. Haz commit de tus cambios (`git commit -m 'Add some amazing feature'`)
+4. Haz push a la rama (`git push origin feature/amazing-feature`)
+5. Abre un Pull Request
+
+## Licencia
+
+Este proyecto está licenciado bajo la licencia MIT - vea el archivo LICENSE para más detalles.
