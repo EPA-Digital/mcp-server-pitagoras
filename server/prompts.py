@@ -82,7 +82,7 @@ async def register_prompts(mcp: FastMCP):
             Si no especificas métricas, usaré las predeterminadas (costo, impresiones, clics).
             Para personalizar, indica exactamente cuáles necesitas:
             
-            - metrics.cost_micros → Costo
+            - metrics.cost_micros → Costo (ya convertido a unidades monetarias)
             - metrics.impressions → Número total de impresiones
             - metrics.clicks → Número total de clics
             

@@ -208,28 +208,13 @@ async def register_tools(mcp: FastMCP):
         result.append("| " + " | ".join(["---" for _ in headers]) + " |")
         
         for row in rows:
-            # Formatear valores monetarios (convertir micros a unidades monetarias)
-            formatted_row = []
-            for i, cell in enumerate(row):
-                if headers[i] == "metrics.cost_micros":
-                    # Convertir micros (millonésimas) a unidades monetarias
-                    try:
-                        value = float(cell) / 1000000.0
-                        formatted_row.append(f"{value:.2f}")
-                    except (ValueError, TypeError):
-                        formatted_row.append(str(cell))
-                else:
-                    formatted_row.append(str(cell))
-            
+            # No necesitamos convertir cost_micros ya que Pitágoras ya lo devuelve en unidades monetarias
+            formatted_row = [str(cell) for cell in row]
             result.append("| " + " | ".join(formatted_row) + " |")
         
         # Incluir resumen numérico
         result.append("")
         result.append(f"**Total de filas:** {len(rows)}")
-        
-        # Explicar formato de métricas
-        if "metrics.cost_micros" in metrics:
-            result.append("**Nota:** Los valores de costo se muestran en unidades monetarias (no en micros).")
         
         return "\n".join(result)
 
