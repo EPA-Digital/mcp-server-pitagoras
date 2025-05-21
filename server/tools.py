@@ -5,6 +5,7 @@ from typing import List, Dict, Optional
 from mcp.server.fastmcp import FastMCP
 from pitagoras.api import (
     get_customers,
+    search_customers,
     get_google_ads_report,
     get_facebook_ads_report,
     get_google_analytics_report
@@ -23,9 +24,13 @@ async def register_tools(mcp: FastMCP):
     """Register all MCP tools"""
     
     @mcp.tool()
-    async def get_customers_data() -> str:
-        """Get all available customers and their accounts"""
-        customers = await get_customers()
+    async def get_customers_data(query: Optional[str] = None) -> str:
+        """Get all available customers and their accounts.
+
+        Args:
+            query: optional text to filter customers by name or ID
+        """
+        customers = await (search_customers(query) if query else get_customers())
         
         if not customers:
             return "No se encontraron clientes disponibles."
@@ -70,6 +75,7 @@ async def register_tools(mcp: FastMCP):
         result.append("- Escriba el **número** del cliente: Ej. `2`")
         result.append("- Use el **ID exacto**: Ej. `Selecciono el cliente RG-123456`")
         result.append("- Use el **nombre completo**: Ej. `Selecciono el cliente Empresa ABC`")
+        result.append("- Puede filtrar la lista usando el parámetro `query`: Ej. `get_customers_data(query='ABC')`")
         
         return "\n".join(result)
     
