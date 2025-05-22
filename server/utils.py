@@ -48,7 +48,6 @@ def format_csv_data(headers: list, rows: list) -> str:
     result = [",".join(headers)]
     for row in rows:
         result.append(",".join(str(cell) for cell in row))
-
     return "\n".join(result)
 
 
