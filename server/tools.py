@@ -319,14 +319,14 @@ async def register_tools(mcp: FastMCP):
     ) -> str:
         """
         Get Google Analytics data for specific properties
-        
+
         Args:
             customer_id: The customer ID
             accounts_selection: Selection string with numbers or IDs
             start_date: Start date in YYYY-MM-DD format
             end_date: End date in YYYY-MM-DD format
             dimensions: Optional list of dimensions (defaults to date, sessionCampaignName, sessionSourceMedium)
-            metrics: Optional list of metrics (defaults to sessions, transactions, totalRevenue)
+            metrics: Optional list of metrics (defaults to sessions, totalRevenue)
             with_campaign_filter: Whether to filter for campaigns starting with 'aw_' or 'fb_'
         """
         customers = await get_customers()
@@ -360,80 +360,58 @@ async def register_tools(mcp: FastMCP):
                 f"Propiedades disponibles: {', '.join(available)}"
             )
 
-        # Set default dimensions and metrics if not provided
         if not dimensions:
             dimensions = ["date", "sessionCampaignName", "sessionSourceMedium"]
-        
+
         if not metrics:
             metrics = ["sessions", "transactions", "totalRevenue"]
-        
-        # Set campaign filter if requested
+
         filters = None
         if with_campaign_filter:
             filters = {
                 "or": [
-                    {
-                        "in": [
-                            "aw_",
-                            {
-                                "var": "sessionCampaignName"
-                            }
-                        ]
-                    },
-                    {
-                        "in": [
-                            "fb_",
-                            {
-                                "var": "sessionCampaignName"
-                            }
-                        ]
-                    }
+                    {"in": ["aw_", {"var": "sessionCampaignName"}]},
+                    {"in": ["fb_", {"var": "sessionCampaignName"}]}
                 ]
             }
-        
+
         try:
-            # Get the report data
             data = await get_google_analytics_report(
                 accounts=accounts,
                 dimensions=dimensions,
                 metrics=metrics,
                 start_date=start_date,
                 end_date=end_date,
-                filters=filters
+                filters=filters,
             )
-            
         except Exception as e:
             return f"Error al obtener datos de Google Analytics: {str(e)}"
-        
-        # Format the response
+
         if "errors" in data and data["errors"]:
             return f"Errores en la API: {data['errors']}"
-        
+
         headers = data.get("headers", [])
         rows = data.get("rows", [])
-        
+
         if not rows:
-            return f"No se encontraron datos para las propiedades seleccionadas en el período {start_date} a {end_date}."
-        
+            return (
+                f"No se encontraron datos para las propiedades seleccionadas en el período {start_date} a {end_date}."
+            )
+
         result = [f"# Datos de Google Analytics ({start_date} a {end_date})"]
         result.append("")
-        
-        # Crear tabla en formato markdown
         result.append("| " + " | ".join(headers) + " |")
         result.append("| " + " | ".join(["---" for _ in headers]) + " |")
-        
+
         for row in rows:
             result.append("| " + " | ".join(str(cell) for cell in row) + " |")
-        
-        # Incluir resumen numérico
+
         result.append("")
         result.append(f"**Total de filas:** {len(rows)}")
         result.append(f"**Propiedades incluidas:** {', '.join(a['name'] for a in accounts)}")
 
-        
         return "\n".join(result)
 
-    @mcp.tool()
     async def list_accounts_by_medium(customer_id: str) -> str:
         """
         List all available accounts for a specific customer, grouped by medium
@@ -554,6 +532,4 @@ async def register_tools(mcp: FastMCP):
         result.append("- `all`: Seleccionar todas las cuentas disponibles")
         result.append("- Puedes responder con los **números** o los **IDs** de la tabla (ej: `1,3` o `123456789,987654321`). La selección se interpretará automáticamente")
 
-        return "\n".join(result)
-        
         return "\n".join(result)

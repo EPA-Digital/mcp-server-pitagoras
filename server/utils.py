@@ -42,13 +42,14 @@ def parse_date_range(date_range: str) -> Tuple[str, str]:
     return start_date, end_date
 
 
+
 def format_csv_data(headers: list, rows: list) -> str:
     """Format data as CSV text"""
     result = [",".join(headers)]
     for row in rows:
         result.append(",".join(str(cell) for cell in row))
-    
-        return "\n".join(result)
+    return "\n".join(result)
+
 
 def parse_account_selection(selection: str, accounts: List[Dict]) -> List[Dict]:
     """Interpret a user selection string and return the matching accounts.
