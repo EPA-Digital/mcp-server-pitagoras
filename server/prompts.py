@@ -69,9 +69,9 @@ async def register_prompts(mcp: FastMCP):
             He obtenido las cuentas específicas de Google Ads disponibles para {customer_name} (ID: {customer_id}).
             
             ## Parámetros requeridos:
-            1. **Cuentas** - Especifica las cuentas exactas a consultar usando los ID numéricos:
-            - Ejemplo: "1234567890, 0987654321"
-            - Alternativa: "Todas las cuentas"
+            1. **Cuentas** - Indica los números o IDs de las cuentas que aparecen en la tabla:
+            - Ejemplo: "1,3" o "1234567890,0987654321"
+            - Alternativa: "all" para todas las cuentas
             
             2. **Rango de fechas** - Define el período exacto a analizar:
             - Fecha inicial: YYYY-MM-DD (Ej: 2025-01-01)
@@ -112,10 +112,9 @@ async def register_prompts(mcp: FastMCP):
             He obtenido las cuentas específicas de Facebook Ads disponibles para {customer_name} (ID: {customer_id}).
             
             ## Parámetros requeridos:
-            1. **Cuentas** - Especifica las cuentas exactas a consultar por su nombre o ID:
-            - Ejemplo por ID: "act_1234567890, act_0987654321"
-            - Ejemplo por nombre: "Campaña Principal, Campaña Secundaria"
-            - Alternativa: "Todas las cuentas disponibles"
+            1. **Cuentas** - Indica los números o IDs de las cuentas mostradas en la tabla:
+            - Ejemplo: "2,5" o "act_1234567890,act_0987654321"
+            - Alternativa: "all" para todas las cuentas disponibles
             
             2. **Rango de fechas** - Define el período exacto a analizar:
             - Fecha inicial: YYYY-MM-DD (Ej: 2025-01-01)
@@ -157,12 +156,9 @@ async def register_prompts(mcp: FastMCP):
             He obtenido las propiedades específicas de Google Analytics 4 disponibles para {customer_name} (ID: {customer_id}).
             
             ## Parámetros requeridos:
-            1. **Propiedades** - Especifica las propiedades a consultar:
-            - Si quieres usar todas las propiedades disponibles, escribe: `all_google_analytics`
-            - O especifica los IDs exactos (debes incluir los tres elementos):
-              - Property IDs: Lista de IDs numéricos (Ej: "123456789, 987654321")
-              - Account IDs: Lista de IDs correspondientes (Ej: "112233, 445566")
-              - Account Names: Nombres exactos de las cuentas (Ej: "Web Principal, Web Secundaria")
+            1. **Propiedades** - Indica los números o IDs de las propiedades mostradas en la tabla:
+            - Ejemplo: "1,4" o "196407566,123456789"
+            - Alternativa: "all" para todas las propiedades disponibles
             
             2. **Rango de fechas** - Define el período exacto a analizar:
             - Fecha inicial: YYYY-MM-DD (Ej: 2025-01-01)
@@ -185,10 +181,7 @@ async def register_prompts(mcp: FastMCP):
             
             ## Formato de respuesta requerido:
             ```
-            Propiedades: [all_google_analytics o IDs específicos]
-            Property IDs: [lista separada por comas o deja en blanco si usas all_google_analytics]
-            Account IDs: [lista separada por comas o deja en blanco si usas all_google_analytics]
-            Account Names: [lista separada por comas o deja en blanco si usas all_google_analytics]
+            Propiedades: [números/IDs o "all"]
             Fecha inicial: YYYY-MM-DD
             Fecha final: YYYY-MM-DD
             Dimensiones: [lista o "predeterminadas"]
