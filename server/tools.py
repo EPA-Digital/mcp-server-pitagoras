@@ -10,7 +10,13 @@ from pitagoras.api import (
     search_customers,
     get_google_ads_report,
     get_facebook_ads_report,
-    get_google_analytics_report
+    get_google_analytics_report,
+    get_analytics4_metadata,
+    get_facebook_schema,
+    get_adwords_resources,
+    get_adwords_attributes,
+    get_adwords_segments,
+    get_adwords_metrics,
 )
 
 # Configurar logging para escribir en stderr (que MCP captura automáticamente)
@@ -530,6 +536,112 @@ async def register_tools(mcp: FastMCP):
         # Agregar ayuda para comandos rápidos
         result.append("\n## Comandos rápidos")
         result.append("- `all`: Seleccionar todas las cuentas disponibles")
-        result.append("- Puedes responder con los **números** o los **IDs** de la tabla (ej: `1,3` o `123456789,987654321`). La selección se interpretará automáticamente")
+        result.append("- `[número]`: Seleccionar por número de la tabla (ej: `1,3,5`)")
+        result.append("- `id:[ID]`: Seleccionar por ID específico (ej: `id:123456789,id:987654321`)")
 
         return "\n".join(result)
+
+    @mcp.tool()
+    async def analytics4_metadata() -> str:
+        """Show available GA4 dimensions and metrics"""
+        try:
+            metadata = await get_analytics4_metadata()
+        except Exception as e:
+            return f"Error al obtener metadata de GA4: {str(e)}"
+
+        result = ["# Metadata de Google Analytics 4"]
+        dims = metadata.get("dimensions", [])
+        if dims:
+            result.append("## Dimensiones")
+            result.append("| Valor | Etiqueta |")
+            result.append("| --- | --- |")
+            for dim in dims:
+                result.append(f"| {dim.get('value')} | {dim.get('label', '')} |")
+
+        mets = metadata.get("metrics", [])
+        if mets:
+            result.append("\n## Métricas")
+            result.append("| Valor | Etiqueta |")
+            result.append("| --- | --- |")
+            for met in mets:
+                result.append(f"| {met.get('value')} | {met.get('label', '')} |")
+
+        return "\n".join(result)
+
+    @mcp.tool()
+    async def facebook_schema() -> str:
+        """Display Facebook Ads fields schema"""
+        try:
+            data = await get_facebook_schema()
+        except Exception as e:
+            return f"Error al obtener esquema de Facebook Ads: {str(e)}"
+
+        fields = data.get("fields", [])
+        if not fields:
+            return "No se encontraron campos disponibles"
+
+        result = ["# Esquema de Facebook Ads", "| Campo | Tipo |", "| --- | --- |"]
+        for field in fields:
+            result.append(f"| {field.get('name')} | {field.get('type', '')} |")
+        return "\n".join(result)
+
+    @mcp.tool()
+    async def adwords_resources() -> str:
+        """List Google Ads resources"""
+        try:
+            resources = await get_adwords_resources()
+        except Exception as e:
+            return f"Error al obtener recursos de Google Ads: {str(e)}"
+
+        if not resources:
+            return "No se encontraron recursos disponibles"
+
+        result = ["# Recursos de Google Ads"]
+        result.extend(f"- {r}" for r in resources)
+        return "\n".join(result)
+
+    @mcp.tool()
+    async def adwords_attributes(resource_name: str) -> str:
+        """List attributes for a Google Ads resource"""
+        try:
+            attrs = await get_adwords_attributes(resource_name)
+        except Exception as e:
+            return f"Error al obtener atributos: {str(e)}"
+
+        if not attrs:
+            return f"No se encontraron atributos para {resource_name}"
+
+        result = [f"# Atributos para {resource_name}"]
+        result.extend(f"- {a}" for a in attrs)
+        return "\n".join(result)
+
+    @mcp.tool()
+    async def adwords_segments(resource_name: str) -> str:
+        """List segments for a Google Ads resource"""
+        try:
+            segs = await get_adwords_segments(resource_name)
+        except Exception as e:
+            return f"Error al obtener segmentos: {str(e)}"
+
+        if not segs:
+            return f"No se encontraron segmentos para {resource_name}"
+
+        result = [f"# Segmentos para {resource_name}"]
+        result.extend(f"- {s}" for s in segs)
+        return "\n".join(result)
+
+    @mcp.tool()
+    async def adwords_metrics(resource_name: str) -> str:
+        """List metrics for a Google Ads resource"""
+        try:
+            mets = await get_adwords_metrics(resource_name)
+        except Exception as e:
+            return f"Error al obtener métricas: {str(e)}"
+
+        if not mets:
+            return f"No se encontraron métricas para {resource_name}"
+
+        result = [f"# Métricas para {resource_name}"]
+        result.extend(f"- {m}" for m in mets)
+        return "\n".join(result)
+

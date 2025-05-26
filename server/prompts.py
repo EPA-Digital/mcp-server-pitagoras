@@ -77,7 +77,12 @@ async def register_prompts(mcp: FastMCP):
             - Fecha inicial: YYYY-MM-DD (Ej: 2025-01-01)
             - Fecha final: YYYY-MM-DD (Ej: 2025-04-30)
             - Períodos predefinidos: "Último mes", "Último trimestre", "Año actual"
-            
+
+            ## Consulta del esquema de Google Ads
+            Antes de solicitar las métricas puedo mostrarte las opciones reales.
+            Ejecutaré las herramientas `adwords_resources`, `adwords_attributes('campaign')`,
+            `adwords_segments('campaign')` y `adwords_metrics('campaign')` para
+            obtener sugerencias basadas en el recurso `campaign`.
             ## Métricas (opcional):
             Si no especificas métricas, usaré las predeterminadas (costo, impresiones, clics).
             Para personalizar, indica exactamente cuáles necesitas:
@@ -121,7 +126,11 @@ async def register_prompts(mcp: FastMCP):
             - Fecha inicial: YYYY-MM-DD (Ej: 2025-01-01)
             - Fecha final: YYYY-MM-DD (Ej: 2025-04-30)
             - Períodos predefinidos: "Último mes", "Último trimestre", "Año actual"
-            
+
+            ## Consulta del esquema de Facebook Ads
+            Antes de definir los campos ejecutaré la herramienta `facebook_schema`
+            para mostrarte los nombres y tipos disponibles.
+
             ## Campos (opcional):
             Si no especificas campos, usaré los predeterminados (campaign_name, date_start, spend, impressions, clicks).
             Para personalizar, indica exactamente cuáles necesitas:
@@ -166,6 +175,10 @@ async def register_prompts(mcp: FastMCP):
             - Fecha inicial: YYYY-MM-DD (Ej: 2025-01-01)
             - Fecha final: YYYY-MM-DD (Ej: 2025-04-30)
             - O usa períodos predefinidos: "Último mes", "Último trimestre", "Año actual"
+
+            ## Consulta de metadatos de GA4
+            Antes de elegir dimensiones o métricas, ejecutaré la herramienta `analytics4_metadata`
+            para mostrarte las opciones disponibles.
             
             ## Parámetros opcionales:
             1. **Dimensiones** (opcional):
