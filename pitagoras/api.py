@@ -1,7 +1,6 @@
 # pitagoras/api.py
 import httpx
 import logging
-from datetime import datetime
 from typing import Dict, List, Any, Optional
 
 from .config import ENDPOINTS, AUTH_TOKEN, DEFAULT_USER_EMAIL
@@ -124,7 +123,7 @@ async def get_facebook_ads_report(
             error_body = None
             try:
                 error_body = e.response.json()
-            except:
+            except Exception:
                 error_body = e.response.text if e.response.text else "No response body"
             
             logger.error(f"HTTP error {e.response.status_code} from Facebook API: {error_body}")
@@ -214,7 +213,7 @@ async def get_google_analytics_report(
             error_body = None
             try:
                 error_body = e.response.json()
-            except:
+            except Exception:
                 error_body = e.response.text if e.response.text else "No response body"
             
             logger.error(f"HTTP error {e.response.status_code} from Google Analytics API: {error_body}")
@@ -223,3 +222,90 @@ async def get_google_analytics_report(
         except Exception as e:
             logger.error(f"Unexpected error with Google Analytics API: {str(e)}", exc_info=True)
             raise Exception(f"Error con la API de Google Analytics: {str(e)}") from e
+
+
+async def get_analytics4_metadata(
+    property_id: str = "0", credential_email: str = "analytics@epa.digital"
+) -> Dict[str, Any]:
+    """Get available GA4 dimensions and metrics"""
+    payload = {"property_id": property_id, "credential_email": credential_email}
+
+    async with httpx.AsyncClient() as client:
+        headers = {}
+        if AUTH_TOKEN:
+            headers["Authorization"] = AUTH_TOKEN
+
+        response = await client.post(
+            ENDPOINTS["analytics4_metadata"], json=payload, headers=headers
+        )
+        response.raise_for_status()
+        return response.json()
+
+
+async def get_facebook_schema() -> Dict[str, Any]:
+    """Get Facebook Ads available fields"""
+    async with httpx.AsyncClient() as client:
+        headers = {}
+        if AUTH_TOKEN:
+            headers["Authorization"] = AUTH_TOKEN
+
+        response = await client.get(ENDPOINTS["facebook_schema"], headers=headers)
+        response.raise_for_status()
+        return response.json()
+
+
+async def get_adwords_resources() -> List[str]:
+    """List available Google Ads resources"""
+    async with httpx.AsyncClient() as client:
+        headers = {}
+        if AUTH_TOKEN:
+            headers["Authorization"] = AUTH_TOKEN
+
+        response = await client.get(ENDPOINTS["adwords_resources"], headers=headers)
+        response.raise_for_status()
+        return response.json()
+
+
+async def get_adwords_attributes(resource_name: str) -> List[str]:
+    """Get Google Ads attributes for a resource"""
+    params = {"resource_name": resource_name}
+    async with httpx.AsyncClient() as client:
+        headers = {}
+        if AUTH_TOKEN:
+            headers["Authorization"] = AUTH_TOKEN
+
+        response = await client.get(
+            ENDPOINTS["adwords_attributes"], params=params, headers=headers
+        )
+        response.raise_for_status()
+        return response.json()
+
+
+async def get_adwords_segments(resource_name: str) -> List[str]:
+    """Get Google Ads segments for a resource"""
+    params = {"resource_name": resource_name}
+    async with httpx.AsyncClient() as client:
+        headers = {}
+        if AUTH_TOKEN:
+            headers["Authorization"] = AUTH_TOKEN
+
+        response = await client.get(
+            ENDPOINTS["adwords_segments"], params=params, headers=headers
+        )
+        response.raise_for_status()
+        return response.json()
+
+
+async def get_adwords_metrics(resource_name: str) -> List[str]:
+    """Get Google Ads metrics for a resource"""
+    params = {"resource_name": resource_name}
+    async with httpx.AsyncClient() as client:
+        headers = {}
+        if AUTH_TOKEN:
+            headers["Authorization"] = AUTH_TOKEN
+
+        response = await client.get(
+            ENDPOINTS["adwords_metrics"], params=params, headers=headers
+        )
+        response.raise_for_status()
+        return response.json()
