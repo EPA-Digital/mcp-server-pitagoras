@@ -2,9 +2,12 @@ import logging
 import sys
 from typing import List, Dict, Optional
 
+from .utils import parse_account_selection
+
 from mcp.server.fastmcp import FastMCP
 from pitagoras.api import (
     get_customers,
+    search_customers,
     get_google_ads_report,
     get_facebook_ads_report,
     get_google_analytics_report,
@@ -29,9 +32,13 @@ async def register_tools(mcp: FastMCP):
     """Register all MCP tools"""
     
     @mcp.tool()
-    async def get_customers_data() -> str:
-        """Get all available customers and their accounts"""
-        customers = await get_customers()
+    async def get_customers_data(query: Optional[str] = None) -> str:
+        """Get all available customers and their accounts.
+
+        Args:
+            query: optional text to filter customers by name or ID
+        """
+        customers = await (search_customers(query) if query else get_customers())
         
         if not customers:
             return "No se encontraron clientes disponibles."
@@ -76,13 +83,14 @@ async def register_tools(mcp: FastMCP):
         result.append("- Escriba el **número** del cliente: Ej. `2`")
         result.append("- Use el **ID exacto**: Ej. `Selecciono el cliente RG-123456`")
         result.append("- Use el **nombre completo**: Ej. `Selecciono el cliente Empresa ABC`")
+        result.append("- Puede filtrar la lista usando el parámetro `query`: Ej. `get_customers_data(query='ABC')`")
         
         return "\n".join(result)
     
     @mcp.tool()
     async def get_google_ads_data(
         customer_id: str,
-        account_ids: List[str],
+        account_selection: str,
         start_date: str,
         end_date: str,
         metrics: Optional[List[str]] = None
@@ -92,7 +100,7 @@ async def register_tools(mcp: FastMCP):
         
         Args:
             customer_id: The customer ID
-            account_ids: List of account IDs to fetch data from
+            account_selection: String with the user's selection (e.g. "1,3,id:123")
             start_date: Start date in YYYY-MM-DD format
             end_date: End date in YYYY-MM-DD format
             metrics: Optional list of metrics to fetch (defaults to cost_micros, impressions, clicks)
@@ -120,34 +128,23 @@ async def register_tools(mcp: FastMCP):
             if account.get("provider") == "adwords":
                 all_adwords_accounts.append({
                     "id": account.get("accountID"),
-                    "name": account.get("name")
+                    "account_id": account.get("accountID"),
+                    "name": account.get("name"),
+                    "login_customer_id": account.get("externalLoginCustomerID", "")
                 })
         
         # Si no hay cuentas de Google Ads, informarlo
         if not all_adwords_accounts:
             return f"El cliente {customer_name} (ID: {customer_id}) no tiene cuentas de Google Ads configuradas."
         
-        # Manejar el caso de "all_google_ads" para seleccionar todas las cuentas
-        if len(account_ids) == 1 and account_ids[0].lower() == "all_google_ads":
-            account_ids = [account["id"] for account in all_adwords_accounts]
-        
-        # Buscar las cuentas solicitadas
-        matching_accounts = []
-        
-        for account in target_customer.get("accounts", []):
-            # Revisar si es una cuenta de adwords y si está en la lista solicitada
-            if account.get("provider") == "adwords" and account.get("accountID") in account_ids:
-                matching_accounts.append({
-                    "account_id": account["accountID"],
-                    "name": account["name"],
-                    "login_customer_id": account.get("externalLoginCustomerID", "")
-                })
+        # Interpretar la selección del usuario
+        matching_accounts = parse_account_selection(account_selection, all_adwords_accounts)
         
         # Si no encontramos las cuentas solicitadas, mostrar información de depuración
         if not matching_accounts:
             available_accounts = [f"{a['id']} ({a['name']})" for a in all_adwords_accounts]
             return (f"No se encontraron las cuentas de Google Ads solicitadas para el cliente {customer_name}.\n"
-                    f"IDs solicitados: {account_ids}\n"
+                    f"Selección solicitada: {account_selection}\n"
                     f"Cuentas disponibles: {', '.join(available_accounts)}")
         
         # Configurar métricas predeterminadas si no se proporcionan
@@ -226,7 +223,8 @@ async def register_tools(mcp: FastMCP):
 
     @mcp.tool()
     async def get_facebook_ads_data(
-        accounts: List[Dict[str, str]],
+        customer_id: str,
+        accounts_selection: str,
         start_date: str,
         end_date: str,
         fields: Optional[List[str]] = None
@@ -235,31 +233,42 @@ async def register_tools(mcp: FastMCP):
         Get Facebook Ads data for specific accounts
         
         Args:
-            accounts: List of account objects, each with 'name' and 'account_id' fields
+            customer_id: The customer ID
+            accounts_selection: String with the user's selection
             start_date: Start date in YYYY-MM-DD format
             end_date: End date in YYYY-MM-DD format
             fields: Optional list of fields to fetch (defaults to campaign_name, date_start, spend, impressions, clicks)
         """
+        # Obtener clientes y encontrar el objetivo
+        customers = await get_customers()
+        target_customer = next((c for c in customers if c["ID"] == customer_id), None)
+        if not target_customer:
+            available = ", ".join(f"{c['ID']} ({c['name']})" for c in customers)
+            return f"Cliente con ID {customer_id} no encontrado. Clientes disponibles: {available}"
+
+        all_fb_accounts = []
+        for account in target_customer.get("accounts", []):
+            if account.get("provider", "").lower() in ["fb", "facebook", "facebook ads"]:
+                all_fb_accounts.append({
+                    "id": account.get("accountID"),
+                    "account_id": account.get("accountID"),
+                    "name": account.get("name")
+                })
+
+        if not all_fb_accounts:
+            return f"El cliente {target_customer['name']} no tiene cuentas de Facebook Ads configuradas."
+
+        formatted_accounts = parse_account_selection(accounts_selection, all_fb_accounts)
+
+        if not formatted_accounts:
+            available = [f"{a['id']} ({a['name']})" for a in all_fb_accounts]
+            return (f"No se encontraron las cuentas de Facebook Ads solicitadas para {target_customer['name']}.\n"
+                    f"Selección solicitada: {accounts_selection}\n"
+                    f"Cuentas disponibles: {', '.join(available)}")
+
         # Establecer campos predeterminados si no se proporcionan
         if not fields:
             fields = ["campaign_name", "date_start", "spend", "impressions", "clicks"]
-        
-        # Asegurar que el formato de cuentas sea correcto
-        formatted_accounts = []
-        for account in accounts:
-            if isinstance(account, dict) and "name" in account and "account_id" in account:
-                formatted_accounts.append(account)
-            elif isinstance(account, dict) and "name" in account and "id" in account:
-                # Convertir formato alternativo si es necesario
-                formatted_accounts.append({
-                    "name": account["name"],
-                    "account_id": account["id"]
-                })
-            else:
-                logger.warning(f"Formato de cuenta incorrecto, se omitirá: {account}")
-        
-        if not formatted_accounts:
-            return "Error: No se proporcionaron cuentas en el formato correcto. Cada cuenta debe tener 'name' y 'account_id'."
         
         try:
             # Obtener los datos del informe usando el formato correcto de la API
@@ -306,9 +315,8 @@ async def register_tools(mcp: FastMCP):
     
     @mcp.tool()
     async def get_google_analytics_data(
-        property_ids: List[str],
-        account_ids: List[str],
-        account_names: List[str],
+        customer_id: str,
+        accounts_selection: str,
         start_date: str,
         end_date: str,
         dimensions: Optional[List[str]] = None,
@@ -317,105 +325,99 @@ async def register_tools(mcp: FastMCP):
     ) -> str:
         """
         Get Google Analytics data for specific properties
-        
+
         Args:
-            property_ids: List of GA4 property IDs
-            account_ids: List of GA4 account IDs
-            account_names: List of account names
+            customer_id: The customer ID
+            accounts_selection: Selection string with numbers or IDs
             start_date: Start date in YYYY-MM-DD format
             end_date: End date in YYYY-MM-DD format
             dimensions: Optional list of dimensions (defaults to date, sessionCampaignName, sessionSourceMedium)
-            metrics: Optional list of metrics (defaults to sessions, transactions, totalRevenue)
+            metrics: Optional list of metrics (defaults to sessions, totalRevenue)
             with_campaign_filter: Whether to filter for campaigns starting with 'aw_' or 'fb_'
         """
-        # Verificar que las listas tengan el mismo tamaño
-        if len(property_ids) != len(account_ids) or len(account_ids) != len(account_names):
-            return "Error: property_ids, account_ids y account_names deben tener el mismo número de elementos."
-        
-        # Crear la lista de cuentas con el formato correcto
-        accounts = [
-            {
-                "account_id": account_id,
-                "property_id": property_id,
-                "name": name,
-                "credential_email": "analytics@epa.digital"
-            }
-            for account_id, property_id, name in zip(account_ids, property_ids, account_names)
-        ]
-        
-        # Set default dimensions and metrics if not provided
+        customers = await get_customers()
+        target_customer = next((c for c in customers if c["ID"] == customer_id), None)
+        if not target_customer:
+            available = ", ".join(f"{c['ID']} ({c['name']})" for c in customers)
+            return f"Cliente con ID {customer_id} no encontrado. Clientes disponibles: {available}"
+
+        all_ga_accounts = []
+        for account in target_customer.get("accounts", []):
+            if "propertyId" in account or "property_id" in account or account.get("provider", "").lower() == "analytics4":
+                property_id = account.get("propertyId") or account.get("property_id") or account.get("propertyID")
+                account_id = account.get("accountID") or account.get("account_id")
+                all_ga_accounts.append({
+                    "id": account_id,
+                    "account_id": account_id,
+                    "property_id": property_id,
+                    "name": account.get("name", "Sin nombre"),
+                    "credential_email": account.get("credentialEmail", "analytics@epa.digital")
+                })
+
+        if not all_ga_accounts:
+            return f"El cliente {target_customer['name']} no tiene propiedades de Google Analytics configuradas."
+
+        accounts = parse_account_selection(accounts_selection, all_ga_accounts)
+        if not accounts:
+            available = [f"{a['property_id']} ({a['name']})" for a in all_ga_accounts]
+            return (
+                f"No se encontraron las propiedades de Google Analytics solicitadas para {target_customer['name']}.\n"
+                f"Selección solicitada: {accounts_selection}\n"
+                f"Propiedades disponibles: {', '.join(available)}"
+            )
+
         if not dimensions:
             dimensions = ["date", "sessionCampaignName", "sessionSourceMedium"]
-        
+
         if not metrics:
             metrics = ["sessions", "transactions", "totalRevenue"]
-        
-        # Set campaign filter if requested
+
         filters = None
         if with_campaign_filter:
             filters = {
                 "or": [
-                    {
-                        "in": [
-                            "aw_",
-                            {
-                                "var": "sessionCampaignName"
-                            }
-                        ]
-                    },
-                    {
-                        "in": [
-                            "fb_",
-                            {
-                                "var": "sessionCampaignName"
-                            }
-                        ]
-                    }
+                    {"in": ["aw_", {"var": "sessionCampaignName"}]},
+                    {"in": ["fb_", {"var": "sessionCampaignName"}]}
                 ]
             }
-        
+
         try:
-            # Get the report data
             data = await get_google_analytics_report(
                 accounts=accounts,
                 dimensions=dimensions,
                 metrics=metrics,
                 start_date=start_date,
                 end_date=end_date,
-                filters=filters
+                filters=filters,
             )
-            
         except Exception as e:
             return f"Error al obtener datos de Google Analytics: {str(e)}"
-        
-        # Format the response
+
         if "errors" in data and data["errors"]:
             return f"Errores en la API: {data['errors']}"
-        
+
         headers = data.get("headers", [])
         rows = data.get("rows", [])
-        
+
         if not rows:
-            return f"No se encontraron datos para las propiedades seleccionadas en el período {start_date} a {end_date}."
-        
+            return (
+                f"No se encontraron datos para las propiedades seleccionadas en el período {start_date} a {end_date}."
+            )
+
         result = [f"# Datos de Google Analytics ({start_date} a {end_date})"]
         result.append("")
-        
-        # Crear tabla en formato markdown
         result.append("| " + " | ".join(headers) + " |")
         result.append("| " + " | ".join(["---" for _ in headers]) + " |")
-        
+
         for row in rows:
             result.append("| " + " | ".join(str(cell) for cell in row) + " |")
-        
-        # Incluir resumen numérico
+
         result.append("")
         result.append(f"**Total de filas:** {len(rows)}")
-        result.append(f"**Propiedades incluidas:** {', '.join(account_names)}")
-        
+        result.append(f"**Propiedades incluidas:** {', '.join(a['name'] for a in accounts)}")
+
         return "\n".join(result)
 
-    @mcp.tool()
     async def list_accounts_by_medium(customer_id: str) -> str:
         """
         List all available accounts for a specific customer, grouped by medium
