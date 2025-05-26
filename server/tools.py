@@ -1,6 +1,6 @@
 import logging
 import sys
-from typing import List, Dict, Optional
+from typing import List, Dict, Optional, Any
 
 from .utils import parse_account_selection
 
@@ -321,7 +321,9 @@ async def register_tools(mcp: FastMCP):
         end_date: str,
         dimensions: Optional[List[str]] = None,
         metrics: Optional[List[str]] = None,
-        with_campaign_filter: bool = True
+        with_campaign_filter: bool = True,
+        campaign_prefixes: Optional[List[str]] = None,
+        filters: Optional[Dict[str, Any]] = None,
     ) -> str:
         """
         Get Google Analytics data for specific properties
@@ -333,7 +335,13 @@ async def register_tools(mcp: FastMCP):
             end_date: End date in YYYY-MM-DD format
             dimensions: Optional list of dimensions (defaults to date, sessionCampaignName, sessionSourceMedium)
             metrics: Optional list of metrics (defaults to sessions, totalRevenue)
-            with_campaign_filter: Whether to filter for campaigns starting with 'aw_' or 'fb_'
+            with_campaign_filter: Whether to apply a campaign prefix filter when
+                no custom ``filters`` are provided
+            campaign_prefixes: Optional prefixes to filter campaigns by. If ``None``
+                and ``with_campaign_filter`` is ``True``, prefixes ``['aw_', 'fb_']``
+                are used.
+            filters: Optional custom filter dictionary. When provided, it
+                overrides ``with_campaign_filter`` and ``campaign_prefixes``.
         """
         customers = await get_customers()
         target_customer = next((c for c in customers if c["ID"] == customer_id), None)
@@ -372,12 +380,14 @@ async def register_tools(mcp: FastMCP):
         if not metrics:
             metrics = ["sessions", "transactions", "totalRevenue"]
 
-        filters = None
-        if with_campaign_filter:
-            filters = {
+        final_filters = None
+        if filters:
+            final_filters = filters
+        elif with_campaign_filter:
+            prefixes = campaign_prefixes or ["aw_", "fb_"]
+            final_filters = {
                 "or": [
-                    {"in": ["aw_", {"var": "sessionCampaignName"}]},
-                    {"in": ["fb_", {"var": "sessionCampaignName"}]}
+                    {"in": [p, {"var": "sessionCampaignName"}]} for p in prefixes
                 ]
             }
 
@@ -388,7 +398,7 @@ async def register_tools(mcp: FastMCP):
                 metrics=metrics,
                 start_date=start_date,
                 end_date=end_date,
-                filters=filters,
+                filters=final_filters,
             )
         except Exception as e:
             return f"Error al obtener datos de Google Analytics: {str(e)}"

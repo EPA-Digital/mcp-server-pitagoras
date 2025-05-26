@@ -190,9 +190,11 @@ async def register_prompts(mcp: FastMCP):
             - Usa "predeterminadas" o especifica una lista separada por comas
             - Predeterminadas: sessions, transactions, totalRevenue
             
-            3. **Filtro de campañas** (opcional):
-            - Usa "activado" (predeterminado) o "desactivado"  
-            - Cuando está activado, solo muestra campañas que empiezan con 'aw_' o 'fb_'
+            3. **Filtros** (opcional):
+            - Por defecto se filtran las campañas que empiezan con 'aw_' o 'fb_'
+            - Usa "desactivado" para omitir por completo cualquier filtro
+            - Puedes indicar otros prefijos separados por coma: "aw_,yt_" para filtrar con esos valores
+            - También puedes proporcionar un filtro personalizado en formato JSON con operadores como "and", "or", "eq", "in", etc.
             
             ## Formato de respuesta requerido:
             ```
@@ -201,7 +203,7 @@ async def register_prompts(mcp: FastMCP):
             Fecha final: YYYY-MM-DD
             Dimensiones: [lista o "predeterminadas"]
             Métricas: [lista o "predeterminadas"]
-            Filtro de campañas: [activado/desactivado]
+            Filtros: ["desactivado", prefijos o JSON personalizado]
             ```
             
             ## Importante
@@ -261,7 +263,7 @@ async def register_prompts(mcp: FastMCP):
             Fecha inicial: YYYY-MM-DD
             Fecha final: YYYY-MM-DD
             Dimensiones y Métricas: [específicas o "predeterminadas"]
-            Filtro de campañas: [activado/desactivado]
+            Filtro de campañas: [activado/desactivado o prefijos]
             ```
             
             ### PASO 3: Análisis de resultados
