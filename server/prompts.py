@@ -69,9 +69,9 @@ async def register_prompts(mcp: FastMCP):
             He obtenido las cuentas específicas de Google Ads disponibles para {customer_name} (ID: {customer_id}).
             
             ## Parámetros requeridos:
-            1. **Cuentas** - Especifica las cuentas exactas a consultar usando los ID numéricos:
-            - Ejemplo: "1234567890, 0987654321"
-            - Alternativa: "Todas las cuentas"
+            1. **Cuentas** - Indica los números o IDs de las cuentas que aparecen en la tabla:
+            - Ejemplo: "1,3" o "1234567890,0987654321"
+            - Alternativa: "all" para todas las cuentas
             
             2. **Rango de fechas** - Define el período exacto a analizar:
             - Fecha inicial: YYYY-MM-DD (Ej: 2025-01-01)
@@ -100,8 +100,9 @@ async def register_prompts(mcp: FastMCP):
             ```
             
             ## Importante
-            - Si no encuentras información no continues reintenta extraer los datos pero en ningun caso aproximes la información.
-            - En caso de continuar con errores comunicalo a l usuario, pero no uses datos que no vengan de la API de Pitágoras.
+            - Si no hay información vuelve a intentar la extracción. Nunca estimes ni inventes datos.
+            - Si la extracción falla responde: "No fue posible obtener los datos. Revisa los parámetros e intenta de nuevo. No uses datos estimados".
+            - En caso de errores persistentes comunícalo al usuario sin usar datos que no provengan de la API de Pitágoras.
             
             Con esta información precisa, ejecutaré la herramienta `get_google_ads_data` para obtener los datos solicitados.
             """)
@@ -117,10 +118,9 @@ async def register_prompts(mcp: FastMCP):
             He obtenido las cuentas específicas de Facebook Ads disponibles para {customer_name} (ID: {customer_id}).
             
             ## Parámetros requeridos:
-            1. **Cuentas** - Especifica las cuentas exactas a consultar por su nombre o ID:
-            - Ejemplo por ID: "act_1234567890, act_0987654321"
-            - Ejemplo por nombre: "Campaña Principal, Campaña Secundaria"
-            - Alternativa: "Todas las cuentas disponibles"
+            1. **Cuentas** - Indica los números o IDs de las cuentas mostradas en la tabla:
+            - Ejemplo: "2,5" o "act_1234567890,act_0987654321"
+            - Alternativa: "all" para todas las cuentas disponibles
             
             2. **Rango de fechas** - Define el período exacto a analizar:
             - Fecha inicial: YYYY-MM-DD (Ej: 2025-01-01)
@@ -149,8 +149,9 @@ async def register_prompts(mcp: FastMCP):
             Campos: [lista separada por comas o "predeterminados"]
             ```
             ## Importante
-            - Si no encuentras información no continues reintenta extraer los datos pero en ningun caso aproximes la información.
-            - En caso de continuar con errores comunicalo a l usuario, pero no uses datos que no vengan de la API de Pitágoras.
+            - Si no hay información vuelve a intentar la extracción. Nunca estimes ni inventes datos.
+            - Si la extracción falla responde: "No fue posible obtener los datos. Revisa los parámetros e intenta de nuevo. No uses datos estimados".
+            - En caso de errores persistentes comunícalo al usuario sin usar datos que no provengan de la API de Pitágoras.
             
             Con esta información precisa, ejecutaré la herramienta `get_facebook_ads_data` para obtener los datos solicitados.
             """)
@@ -166,12 +167,9 @@ async def register_prompts(mcp: FastMCP):
             He obtenido las propiedades específicas de Google Analytics 4 disponibles para {customer_name} (ID: {customer_id}).
             
             ## Parámetros requeridos:
-            1. **Propiedades** - Especifica las propiedades a consultar:
-            - Si quieres usar todas las propiedades disponibles, escribe: `all_google_analytics`
-            - O especifica los IDs exactos (debes incluir los tres elementos):
-              - Property IDs: Lista de IDs numéricos (Ej: "123456789, 987654321")
-              - Account IDs: Lista de IDs correspondientes (Ej: "112233, 445566")
-              - Account Names: Nombres exactos de las cuentas (Ej: "Web Principal, Web Secundaria")
+            1. **Propiedades** - Indica los números o IDs de las propiedades mostradas en la tabla:
+            - Ejemplo: "1,4" o "196407566,123456789"
+            - Alternativa: "all" para todas las propiedades disponibles
             
             2. **Rango de fechas** - Define el período exacto a analizar:
             - Fecha inicial: YYYY-MM-DD (Ej: 2025-01-01)
@@ -198,10 +196,7 @@ async def register_prompts(mcp: FastMCP):
             
             ## Formato de respuesta requerido:
             ```
-            Propiedades: [all_google_analytics o IDs específicos]
-            Property IDs: [lista separada por comas o deja en blanco si usas all_google_analytics]
-            Account IDs: [lista separada por comas o deja en blanco si usas all_google_analytics]
-            Account Names: [lista separada por comas o deja en blanco si usas all_google_analytics]
+            Propiedades: [números/IDs o "all"]
             Fecha inicial: YYYY-MM-DD
             Fecha final: YYYY-MM-DD
             Dimensiones: [lista o "predeterminadas"]
@@ -210,8 +205,9 @@ async def register_prompts(mcp: FastMCP):
             ```
             
             ## Importante
-            - Si no encuentras información no continues reintenta extraer los datos pero en ningun caso aproximes la información.
-            - En caso de continuar con errores comunicalo a l usuario, pero no uses datos que no vengan de la API de Pitágoras.
+            - Si no hay información vuelve a intentar la extracción. Nunca estimes ni inventes datos.
+            - Si la extracción falla responde: "No fue posible obtener los datos. Revisa los parámetros e intenta de nuevo. No uses datos estimados".
+            - En caso de errores persistentes comunícalo al usuario sin usar datos que no provengan de la API de Pitágoras.
             
             Con esta información completa, ejecutaré la herramienta `get_google_analytics_data` para obtener los datos solicitados.
             """)
@@ -277,9 +273,10 @@ async def register_prompts(mcp: FastMCP):
             
             
             ## Nota importante:
-            
-            - Si no encuentras información no continues reintenta extraer los datos pero en ningun caso aproximes la información.
-            - En caso de continuar con errores comunicalo a l usuario, pero no uses datos que no vengan de la API de Pitágoras.
+
+            - Si no hay información vuelve a intentar la extracción. Nunca estimes ni inventes datos.
+            - Si la extracción falla responde: "No fue posible obtener los datos. Revisa los parámetros e intenta de nuevo. No uses datos estimados".
+            - En caso de errores persistentes comunícalo al usuario sin usar datos que no provengan de la API de Pitágoras.
             
             Ejecutando `list_accounts_by_medium` para obtener el inventario completo de cuentas para {customer_name}...
             """)

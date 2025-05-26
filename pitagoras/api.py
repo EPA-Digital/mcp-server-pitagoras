@@ -27,6 +27,20 @@ async def get_customers(user_email: str = DEFAULT_USER_EMAIL) -> List[Dict[str, 
         logger.info(f"Received {len(data.get('customers', []))} customers")
         return data.get("customers", [])
 
+async def search_customers(query: str, user_email: str = DEFAULT_USER_EMAIL) -> List[Dict[str, Any]]:
+    """Return customers whose name or ID contains ``query``."""
+    customers = await get_customers(user_email)
+    query_lower = query.lower()
+    filtered = [
+        c
+        for c in customers
+        if query_lower in str(c.get("ID", "")).lower()
+        or query_lower in c.get("name", "").lower()
+    ]
+    logger.info(
+        f"Filtered customers by '{query}', found {len(filtered)} matches"
+    )
+    return filtered
 
 async def get_google_ads_report(
     accounts: List[Dict[str, str]],
