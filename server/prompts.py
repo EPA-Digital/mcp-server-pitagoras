@@ -95,8 +95,9 @@ async def register_prompts(mcp: FastMCP):
             ```
             
             ## Importante
-            - Si no encuentras información no continues reintenta extraer los datos pero en ningun caso aproximes la información.
-            - En caso de continuar con errores comunicalo a l usuario, pero no uses datos que no vengan de la API de Pitágoras.
+            - Si no hay información vuelve a intentar la extracción. Nunca estimes ni inventes datos.
+            - Si la extracción falla responde: "No fue posible obtener los datos. Revisa los parámetros e intenta de nuevo. No uses datos estimados".
+            - En caso de errores persistentes comunícalo al usuario sin usar datos que no provengan de la API de Pitágoras.
             
             Con esta información precisa, ejecutaré la herramienta `get_google_ads_data` para obtener los datos solicitados.
             """)
@@ -139,8 +140,9 @@ async def register_prompts(mcp: FastMCP):
             Campos: [lista separada por comas o "predeterminados"]
             ```
             ## Importante
-            - Si no encuentras información no continues reintenta extraer los datos pero en ningun caso aproximes la información.
-            - En caso de continuar con errores comunicalo a l usuario, pero no uses datos que no vengan de la API de Pitágoras.
+            - Si no hay información vuelve a intentar la extracción. Nunca estimes ni inventes datos.
+            - Si la extracción falla responde: "No fue posible obtener los datos. Revisa los parámetros e intenta de nuevo. No uses datos estimados".
+            - En caso de errores persistentes comunícalo al usuario sin usar datos que no provengan de la API de Pitágoras.
             
             Con esta información precisa, ejecutaré la herramienta `get_facebook_ads_data` para obtener los datos solicitados.
             """)
@@ -190,8 +192,9 @@ async def register_prompts(mcp: FastMCP):
             ```
             
             ## Importante
-            - Si no encuentras información no continues reintenta extraer los datos pero en ningun caso aproximes la información.
-            - En caso de continuar con errores comunicalo a l usuario, pero no uses datos que no vengan de la API de Pitágoras.
+            - Si no hay información vuelve a intentar la extracción. Nunca estimes ni inventes datos.
+            - Si la extracción falla responde: "No fue posible obtener los datos. Revisa los parámetros e intenta de nuevo. No uses datos estimados".
+            - En caso de errores persistentes comunícalo al usuario sin usar datos que no provengan de la API de Pitágoras.
             
             Con esta información completa, ejecutaré la herramienta `get_google_analytics_data` para obtener los datos solicitados.
             """)
@@ -257,9 +260,10 @@ async def register_prompts(mcp: FastMCP):
             
             
             ## Nota importante:
-            
-            - Si no encuentras información no continues reintenta extraer los datos pero en ningun caso aproximes la información.
-            - En caso de continuar con errores comunicalo a l usuario, pero no uses datos que no vengan de la API de Pitágoras.
+
+            - Si no hay información vuelve a intentar la extracción. Nunca estimes ni inventes datos.
+            - Si la extracción falla responde: "No fue posible obtener los datos. Revisa los parámetros e intenta de nuevo. No uses datos estimados".
+            - En caso de errores persistentes comunícalo al usuario sin usar datos que no provengan de la API de Pitágoras.
             
             Ejecutando `list_accounts_by_medium` para obtener el inventario completo de cuentas para {customer_name}...
             """)
