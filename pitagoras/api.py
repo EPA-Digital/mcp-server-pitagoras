@@ -1,7 +1,6 @@
 # pitagoras/api.py
 import httpx
 import logging
-from datetime import datetime
 from typing import Dict, List, Any, Optional
 
 from .config import ENDPOINTS, AUTH_TOKEN, DEFAULT_USER_EMAIL
@@ -138,7 +137,7 @@ async def get_facebook_ads_report(
             error_body = None
             try:
                 error_body = e.response.json()
-            except:
+            except Exception:
                 error_body = e.response.text if e.response.text else "No response body"
             
             logger.error(f"HTTP error {e.response.status_code} from Facebook API: {error_body}")
@@ -228,7 +227,7 @@ async def get_google_analytics_report(
             error_body = None
             try:
                 error_body = e.response.json()
-            except:
+            except Exception:
                 error_body = e.response.text if e.response.text else "No response body"
             
             logger.error(f"HTTP error {e.response.status_code} from Google Analytics API: {error_body}")

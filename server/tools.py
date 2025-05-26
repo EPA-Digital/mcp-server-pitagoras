@@ -644,4 +644,3 @@ async def register_tools(mcp: FastMCP):
         result = [f"# Métricas para {resource_name}"]
         result.extend(f"- {m}" for m in mets)
         return "\n".join(result)
-
