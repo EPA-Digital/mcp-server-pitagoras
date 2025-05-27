@@ -1,12 +1,10 @@
-## Todo
+## Todos
 
-- Crear prompts más elaborados por medio
-- Crear herramientas para los siguientes endpoints para mostrarle al LLM el esquema de los medios:
-  - https://pitagoras-api-l6dmrzkz7a-uc.a.run.app/api/v1/analytics4/metadata
-  - https://pitagoras-api-l6dmrzkz7a-uc.a.run.app/api/v1/facebook/schema
-  - https://pitagoras-api-l6dmrzkz7a-uc.a.run.app/api/v1/adwords/resources
-  - https://pitagoras-api-l6dmrzkz7a-uc.a.run.app/api/v1/adwords/attributes?resource_name=campaign
-  - https://pitagoras-api-l6dmrzkz7a-uc.a.run.app/api/v1/adwords/segments?resource_name=campaign
-  - https://pitagoras-api-l6dmrzkz7a-uc.a.run.app/api/v1/adwords/metrics?resource_name=campaign
-- Publicar el módulo en pypi para mantenerlo actualizado
-  - Encontrar la forma de pasarle el token sin exponerlo al público
+- Mejorar los prompts
+  - Eliminar de los prompts la lógica post extracción de datos.
+- Optimización y limpieza de código
+  - Dejar como constantes los timeouts y los parámetros de configuración.
+  - Mejorar la gestión de errores
+- Mejoras funcionales
+  - Implementar filtros en `get_google_ads_report` y `get_facebook_ads_report`
+- Crear un login con google oauth para que los usuarios puedan iniciar sesión para Pitágoras.
