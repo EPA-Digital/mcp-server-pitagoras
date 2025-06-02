@@ -48,6 +48,31 @@ Una vez configurado el servidor MCP, puedes:
 
 ## Changelog
 
+### v0.3.0
+- **Nueva funcionalidad**: Agregado soporte para filtros personalizados en Google Analytics 4
+- **Nuevas herramientas**: Implementadas herramientas de metadata para acceder a esquemas e información de atributos
+- **Mejoras en API**: Expandido el wrapper de API con funciones de recuperación de metadata
+- **Documentación**: Actualizada documentación de uso de filtros personalizados en prompts
+- **Configuración**: Actualizados endpoints de API con nuevas funcionalidades de metadata
+- **Calidad de código**: Corregidas importaciones no utilizadas y manejo de excepciones
+
+### v0.2.2
+- **Mejoras en prompts**: Refinados los prompts para prohibir explícitamente la estimación de datos
+- **UX**: Mejoradas las instrucciones para reintentar extracción cuando no se pueden recuperar datos de la API
+
+### v0.2.1
+- **Corrección**: Solucionado error que impedía realizar consultas a Google Analytics 4
+
+### v0.2.0
+- **Nueva integración**: Agregada integración con Google Analytics 4
+- **Estructura**: Mejoras en la estructura del proyecto
+- **Dependencias**: Actualización de dependencias
+
+### v0.1.0
+- **Versión inicial**: Implementación base del servidor MCP
+- **Soporte inicial**: Google Ads y Facebook Ads
+- **Protocolo**: Implementación del protocolo MCP básico
+
 ### v0.2.1
 - Corrección: Solucionado error que impedía realizar consultas a Google Analytics 4
 
